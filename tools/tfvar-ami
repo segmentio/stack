@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# This script is a helper for generating the terraform variable when an AMI is
+# built.
+# The program expects to receive the output of a pack-ami command on stdin and
+# outputs the terraform variable definition.
+set -e
+
+usage() {
+    echo 'usage: generate-ami-var [template]'
+    exit 1
+}
+
+template=$1
+test $template || usage
+
+ami=$(grep ami- | cut -d: -f2 | sed 's/ //')
+printf "variable \"${template}_ami\" {\n  default = \"${ami}\"\n}"

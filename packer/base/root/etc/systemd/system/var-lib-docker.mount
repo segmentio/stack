@@ -1,0 +1,14 @@
+[Unit]
+Description=/var/lib/docker
+Requires=format-var-lib-docker.service
+After=format-var-lib-docker.service
+Before=docker.service
+
+[Mount]
+What=/dev/xvdcz
+Where=/var/lib/docker
+Type=ext4
+Options=defaults,nofail
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,33 @@
+[Unit]
+Description=AWS ECS Agent
+Documentation=https://docs.aws.amazon.com/AmazonECS/latest/developerguide/
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=10
+RestartPreventExitStatus=5
+SyslogIdentifier=ecs-agent
+EnvironmentFile=-/etc/environment
+ExecStartPre=/bin/mkdir -p /var/lib/ecs/data
+ExecStartPre=/bin/mkdir -p /var/log/ecs
+ExecStartPre=-/usr/bin/docker kill ecs-agent
+ExecStartPre=-/usr/bin/docker rm ecs-agent
+ExecStartPre=-/usr/bin/docker pull amazon/amazon-ecs-agent:v1.9.0
+ExecStart=/usr/bin/docker run \
+    --name=ecs-agent \
+    --restart=on-failure:10 \
+    --volume=/var/run/docker.sock:/var/run/docker.sock \
+    --volume=/var/log/ecs/:/log \
+    --volume=/var/lib/ecs/data:/data \
+    --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro \
+    --volume=/var/run/docker/execdriver/native:/var/lib/docker/execdriver/native:ro \
+    --publish=127.0.0.1:51678:51678 \
+    --env-file=/etc/ecs/ecs.config \
+    --env=ECS_CLUSTER=${SERVER_GROUP} \
+    amazon/amazon-ecs-agent:v1.9.0
+ExecStop=-/usr/bin/docker stop ecs-agent
+
+[Install]
+WantedBy=multi-user.target

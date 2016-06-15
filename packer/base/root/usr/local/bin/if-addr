@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+# This script outputs the IP address associated with the network interface which
+# name was passed as argument.
+usage() {
+    echo 'usage: if-addr [interface]'
+    exit 1
+}
+
+NETWORK_INTERFACE=$1
+test $NETWORK_INTERFACE || usage
+
+ip addr | awk '
+/^[0-9]+:/ {
+  sub(/:/,"",$2); iface=$2 }
+/^[[:space:]]*inet / {
+  split($2, a, "/")
+  print iface" "a[1]
+}' | grep $NETWORK_INTERFACE | cut -d' ' -f2

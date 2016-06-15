@@ -1,0 +1,13 @@
+[Unit]
+Description=Bootstrap
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/environment
+ExecStart=/usr/local/bin/bootstrap
+
+[Install]
+WantedBy=multi-user.target

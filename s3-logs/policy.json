@@ -1,0 +1,15 @@
+{
+  "Id": "log-bucket-policy",
+  "Statement": [
+    {
+      "Action": "s3:PutObject",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::${account_id}:root"
+      },
+      "Resource": "arn:aws:s3:::${bucket}/*",
+      "Sid": "log-bucket-policy"
+    }
+  ],
+  "Version": "2012-10-17"
+}

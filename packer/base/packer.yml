@@ -1,0 +1,17 @@
+---
+# https://www.packer.io/docs/builders/amazon-ebs.html
+ami:
+  source_ami: ami-fa82739a
+  instance_type: c4.2xlarge
+  ssh_username: ubuntu
+  ssh_timeout: 10m
+  enhanced_networking: True
+  associate_public_ip_address: True
+
+scripts:
+  - base.sh
+  - ixgbevf.sh
+  - bootstrap.sh
+  - docker.sh
+
+execute: "echo ubuntu | {{ .Vars }} sudo -E -S sh '{{ .Path }}'"

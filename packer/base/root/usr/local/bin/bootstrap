@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# This script is used to bootstrap the host, it configures the hostname and
+# /etc/hosts file.
+#
+# If you need to do other host-wide configurations this is the place to do it.
+
+configure_hostname() {
+    INSTANCE=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+    SERVER_HOSTNAME=$SERVER_GROUP-$SERVER_ENVIRONMENT-${INSTANCE#i-}
+    SERVER_ADDR=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+    SERVER_DOMAIN=$(cat /etc/resolv.conf | grep search | head -1 | cut -d' ' -f2)
+    SERVER_FQDN=$SERVER_HOSTNAME.$SERVER_DOMAIN
+
+    hostnamectl set-hostname $SERVER_HOSTNAME
+    hostnamectl set-deployment $SERVER_ENVIRONMENT
+    hostnamectl set-icon-name $SERVER_GROUP
+    hostnamectl set-location $SERVER_REGION
+    hostnamectl set-chassis server
+
+    HOOK="# bootstrap"
+    LINE="$SERVER_ADDR $SERVER_HOSTNAME $SERVER_FQDN $HOOK"
+
+    if grep -q "$HOOK" /etc/hosts; then
+        sed -i 's/^.*'"$HOOK"'.*$/'"$LINE"'/g' /etc/hosts
+    else
+        echo $LINE >> /etc/hosts
+    fi
+}
+
+# SERVER_REGION is only defined when user-data exist, this prevents the hostname
+# from being changed when the script is ran by the instance building an AMI.
+if test $SERVER_REGION; then
+    configure_hostname
+fi

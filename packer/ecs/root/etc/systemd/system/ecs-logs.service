@@ -1,0 +1,23 @@
+[Unit]
+Description=Segment ECS Logs
+Documentation=https://docs.aws.amazon.com/AmazonECS/latest/developerguide/
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=10
+RestartPreventExitStatus=5
+SyslogIdentifier=ecs-logs
+ExecStartPre=-/usr/bin/docker kill ecs-logs
+ExecStartPre=-/usr/bin/docker rm ecs-logs
+ExecStartPre=-/usr/bin/docker pull amazon/amazon-ecs-logs:latest
+ExecStart=/usr/bin/docker run \
+    --name=ecs-logs \
+    --restart=on-failure:10 \
+    --volume=/run/log/journal:/run/log/journal:ro \
+    segment/ecs-logs:latest -src journald -dst cloudwatchlogs
+ExecStop=-/usr/bin/docker stop ecs-logs
+
+[Install]
+WantedBy=multi-user.target

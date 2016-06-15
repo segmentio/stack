@@ -1,0 +1,11 @@
+[Unit]
+Description=formatting the docker drive
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/sbin/wipefs -f /dev/xvdcz
+ExecStart=/sbin/mkfs.ext4 -F /dev/xvdcz
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,1 @@
+DOCKER_OPTS="--bip 172.17.42.1/16 --storage-driver overlay --log-opt max-file=2 --log-opt max-size=50m --host unix:///var/run/docker.sock  --host 0.0.0.0:2376 --exec-opt native.cgroupdriver=cgroupfs"

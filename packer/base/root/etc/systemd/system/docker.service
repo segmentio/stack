@@ -1,0 +1,22 @@
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target docker.socket bootstrap.service
+Requires=docker.socket bootstrap.service
+
+[Service]
+EnvironmentFile=-/etc/default/docker
+Type=notify
+ExecStart=/usr/bin/docker daemon -H fd:// $DOCKER_OPTS
+ExecReload=/bin/kill -s HUP $MAINPID
+MountFlags=slave
+LimitNOFILE=1048576
+LimitNPROC=1048576
+LimitCORE=infinity
+Restart=always
+RestartSec=2s
+StartLimitInterval=0
+Delegate=yes
+
+[Install]
+WantedBy=multi-user.target
