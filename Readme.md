@@ -247,8 +247,8 @@ To dig further down into what you can build with the Segment Stack we have put t
 
 ## Authors
 
-- [Calvin French-Owen](github.com/calvinfo)
-- [Amir Aboushareb](https://github.com/yields)
+- [Calvin French-Owen](https://github.com/calvinfo)
+- [Amir Abu Shareb](https://github.com/yields)
 - [Achille Roussel](https://github.com/achille-roussel)
 - [Kevin Lo](https://github.com/liquidy)
 - [Rick Branson](https://github.com/rbranson)
