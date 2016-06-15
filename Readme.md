@@ -27,7 +27,7 @@ Start from scratch or selectively add it to your existing infrastructure, the St
 
 ## Quickstart
 
-_To run the stack, you'll need AWS access and Terraform installed, check out the [requirements](#Requirements) section._
+_To run the stack, you'll need AWS access and Terraform installed, check out the [requirements](#requirements) section._
 
 The easiest way to get the Stack up and running is by creating a Terraform definition for it, copy this snippet in a file
 named `terraform.tf`:
