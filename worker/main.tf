@@ -1,4 +1,20 @@
 /**
+ * The worker module creates an ECS service that has no ELB attached.
+ *
+ * Usage:
+ *
+ *     module "my_worker" {
+ *       source       = "github.com/segmentio/stack"
+ *       environment  = "prod"
+ *       name         = "worker"
+ *       image        = "worker"
+ *       cluster      = "default"
+ *     }
+ *
+ */
+
+
+/**
  * Required Variables.
  */
 
