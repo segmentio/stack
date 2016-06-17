@@ -56,8 +56,25 @@ variable "external_subnets" {
 }
 
 variable "availability_zones" {
-  description = "a comma-separated list of availability zones"
-  default     = "us-west-2a,us-west-2b,us-west-2c"
+  description = "a comma-separated list of availability zones, defaults to all AZ of the region"
+  default     = ""
+}
+
+variable "default_availability_zones" {
+  description = "a mapping of the default availability zones for each AWS region"
+
+  default = {
+    us-east-1      = "us-east-1a,us-east-1b,us-east-1c,us-east-1e"
+    us-west-1      = "us-west-1a,us-west-1b"
+    us-west-2      = "us-west-2a,us-west-2b,us-west-2c"
+    eu-west-1      = "eu-west-1a,eu-west-1b,eu-west-1c"
+    eu-central-1   = "eu-central-1a,eu-central-1b"
+    ap-southeast-1 = "ap-southeast-1a,ap-southeast-1b"
+    ap-southeast-2 = "ap-southeast-2a,ap-southeast-2b,ap-southeast-2c"
+    ap-northeast-1 = "ap-northeast-1a,ap-northeast-1c"
+    ap-northeast-2 = "ap-northeast-2a,ap-northeast-2c"
+    sa-east-1      = "sa-east-1a,sa-east-1b,sa-east-1c"
+  }
 }
 
 variable "ecs_instance_type" {
@@ -132,16 +149,13 @@ variable "default_ecs_ami" {
 }
 
 module "vpc" {
-  source = "./vpc"
-  name   = "${var.name}"
-
-  cidr             = "${var.cidr}"
-  internal_subnets = "${var.internal_subnets}"
-  external_subnets = "${var.external_subnets}"
-
-  availability_zones = "${var.availability_zones}"
-
-  environment = "${var.environment}"
+  source             = "./vpc"
+  name               = "${var.name}"
+  cidr               = "${var.cidr}"
+  internal_subnets   = "${var.internal_subnets}"
+  external_subnets   = "${var.external_subnets}"
+  availability_zones = "${coalesce(var.availability_zones, lookup(var.default_availability_zones, var.region))}"
+  environment        = "${var.environment}"
 }
 
 module "security_groups" {
