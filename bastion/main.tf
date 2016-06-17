@@ -10,7 +10,7 @@
  * Usage:
  *
  *    module "bastion" {
- *      source            = "github.com/segmentio/stack"
+ *      source            = "github.com/segmentio/stack/bastion"
  *      region            = "us-west-2"
  *      security_groups   = "sg-1,sg-2"
  *      vpc_id            = "vpc-12"
@@ -80,5 +80,5 @@ resource "aws_eip" "bastion" {
 
 // Bastion external IP address.
 output "external_ip" {
-  value = "${aws_eip.bastion.external_ip}"
+  value = "${aws_eip.bastion.public_ip}"
 }
