@@ -109,6 +109,28 @@ variable "ecs_security_groups" {
   default     = ""
 }
 
+variable "ecs_ami" {
+  description = "The AMI that will be used to launch EC2 instances in the ECS cluster"
+  default     = ""
+}
+
+variable "default_ecs_ami" {
+  description = "A mapping of AWS regions to the default ECS AMIs"
+
+  default = {
+    us-east-1      = "ami-5f3ff932"
+    us-west-1      = "ami-31c08551"
+    us-west-2      = "ami-f3985d93"
+    eu-west-1      = "ami-ab4bd5d8"
+    eu-central-1   = "ami-6c58b103"
+    ap-northeast-1 = "ami-a69d68c7"
+    ap-northeast-2 = "ami-7b2de615"
+    ap-southeast-1 = "ami-550dde36"
+    ap-southeast-2 = "ami-c799b0a4"
+    sa-east-1      = "ami-0274fe6e"
+  }
+}
+
 module "vpc" {
   source = "./vpc"
   name   = "${var.name}"
@@ -164,7 +186,7 @@ module "ecs_cluster" {
   name                 = "default"
   environment          = "${var.environment}"
   vpc_id               = "${module.vpc.id}"
-  image_id             = "${var.ecs_ami}"
+  image_id             = "${coalesce(var.ecs_ami, lookup(var.default_ecs_ami, var.region))}"
   subnet_ids           = "${module.vpc.internal_subnets}"
   key_name             = "${var.key_name}"
   instance_type        = "${var.ecs_instance_type}"

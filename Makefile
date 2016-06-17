@@ -46,9 +46,7 @@ validate-ami:
 	pack-ami validate -p ./packer -t ${template}
 
 build-ami:
-	pack-ami build -p ./packer -t ${template} | tee /tmp/build-ami.output
-	@cat /tmp/build-ami.output | tfvar-ami ${template} > ${template)_ami.tfvars
-	@rm -f /tmp/build-ami.output
+	pack-ami build -p ./packer -t ${template}
 
 test:
 	@bash scripts/test.sh
