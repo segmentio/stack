@@ -89,6 +89,11 @@ variable "desired_capacity" {
   default     = 3
 }
 
+variable "associate_public_ip_address" {
+  description = "Should created instances be publicly accessible (if the SG allows)"
+  default = false
+}
+
 variable "root_volume_size" {
   description = "Root volume size in GB"
   default     = 25
@@ -165,13 +170,14 @@ resource "template_file" "cloud_config" {
 resource "aws_launch_configuration" "main" {
   name_prefix = "${format("%s-", var.name)}"
 
-  image_id             = "${var.image_id}"
-  instance_type        = "${var.instance_type}"
-  ebs_optimized        = "${var.instance_ebs_optimized}"
-  iam_instance_profile = "${var.iam_instance_profile}"
-  key_name             = "${var.key_name}"
-  security_groups      = ["${aws_security_group.cluster.id}"]
-  user_data            = "${template_file.cloud_config.rendered}"
+  image_id                    = "${var.image_id}"
+  instance_type               = "${var.instance_type}"
+  ebs_optimized               = "${var.instance_ebs_optimized}"
+  iam_instance_profile        = "${var.iam_instance_profile}"
+  key_name                    = "${var.key_name}"
+  security_groups             = ["${aws_security_group.cluster.id}"]
+  user_data                   = "${template_file.cloud_config.rendered}"
+  associate_public_ip_address = "${var.associate_public_ip_address}"
 
   # root
   root_block_device {
