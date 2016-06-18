@@ -134,7 +134,7 @@ def get_account_id():
     roles = iam.list_roles()['Roles']
 
     if users:
-        arn = users['Arn']
+        arn = users[0]['Arn']
     else:
         for role in roles:
             try:
