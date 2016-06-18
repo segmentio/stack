@@ -36,7 +36,7 @@ variable "domain_name_servers" {
 }
 
 variable "region" {
-  description = "the AWS region"
+  description = "the AWS region in which resources are created, you must set the availability_zones variable as well if you define this value to something other than the default"
   default     = "us-west-2"
 }
 
@@ -57,7 +57,7 @@ variable "external_subnets" {
 
 variable "availability_zones" {
   description = "a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well"
-  default     = ""
+  default     = "us-west-2a,us-west-2b,us-west-2c"
 }
 
 variable "ecs_instance_type" {
@@ -126,7 +126,7 @@ module "vpc" {
   cidr               = "${var.cidr}"
   internal_subnets   = "${var.internal_subnets}"
   external_subnets   = "${var.external_subnets}"
-  availability_zones = "${coalesce(var.availability_zones, module.defaults.availability_zones)}"
+  availability_zones = "${var.availability_zones}"
   environment        = "${var.environment}"
 }
 
