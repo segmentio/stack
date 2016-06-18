@@ -160,3 +160,8 @@ output "internal_subnets" {
 output "security_group" {
   value = "${aws_vpc.main.default_security_group_id}"
 }
+
+// The list of availability zones of the VPC.
+output "availability_zones" {
+  value = "${join(",", aws_subnet.external.*.availability_zone)}"
+}

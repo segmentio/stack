@@ -41,40 +41,23 @@ variable "region" {
 }
 
 variable "cidr" {
-  description = "the CIDR block to provision for the VPC"
+  description = "the CIDR block to provision for the VPC, if set to something other than the default, both internal_subnets and external_subnets have to be defined as well"
   default     = "10.30.0.0/16"
 }
 
 variable "internal_subnets" {
-  description = "a comma-separated list of CIDRs for internal subnets in your VPC"
+  description = "a comma-separated list of CIDRs for internal subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones"
   default     = "10.30.0.0/19,10.30.64.0/19,10.30.128.0/19"
 }
 
 variable "external_subnets" {
-  description = "a comma-separated list of CIDRs for external subnets in your VPC"
+  description = "a comma-separated list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones"
   default     = "10.30.32.0/20,10.30.96.0/20,10.30.160.0/20"
 }
 
 variable "availability_zones" {
-  description = "a comma-separated list of availability zones, defaults to all AZ of the region"
+  description = "a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well"
   default     = ""
-}
-
-variable "default_availability_zones" {
-  description = "a mapping of the default availability zones for each AWS region"
-
-  default = {
-    us-east-1      = "us-east-1a,us-east-1b,us-east-1c,us-east-1e"
-    us-west-1      = "us-west-1a,us-west-1b"
-    us-west-2      = "us-west-2a,us-west-2b,us-west-2c"
-    eu-west-1      = "eu-west-1a,eu-west-1b,eu-west-1c"
-    eu-central-1   = "eu-central-1a,eu-central-1b"
-    ap-southeast-1 = "ap-southeast-1a,ap-southeast-1b"
-    ap-southeast-2 = "ap-southeast-2a,ap-southeast-2b,ap-southeast-2c"
-    ap-northeast-1 = "ap-northeast-1a,ap-northeast-1c"
-    ap-northeast-2 = "ap-northeast-2a,ap-northeast-2c"
-    sa-east-1      = "sa-east-1a,sa-east-1b,sa-east-1c"
-  }
 }
 
 variable "ecs_instance_type" {
@@ -122,7 +105,7 @@ variable "ecs_docker_auth_data" {
 }
 
 variable "ecs_security_groups" {
-  description = "A coma separated list of security groups from which ingest traffic will be allowed on the ECS cluster, it defaults to allowing ingress traffic on port 22 and coming grom the ELBs"
+  description = "A comma separated list of security groups from which ingest traffic will be allowed on the ECS cluster, it defaults to allowing ingress traffic on port 22 and coming grom the ELBs"
   default     = ""
 }
 
@@ -131,21 +114,10 @@ variable "ecs_ami" {
   default     = ""
 }
 
-variable "default_ecs_ami" {
-  description = "A mapping of AWS regions to the default ECS AMIs"
-
-  default = {
-    us-east-1      = "ami-5f3ff932"
-    us-west-1      = "ami-31c08551"
-    us-west-2      = "ami-f3985d93"
-    eu-west-1      = "ami-ab4bd5d8"
-    eu-central-1   = "ami-6c58b103"
-    ap-northeast-1 = "ami-a69d68c7"
-    ap-northeast-2 = "ami-7b2de615"
-    ap-southeast-1 = "ami-550dde36"
-    ap-southeast-2 = "ami-c799b0a4"
-    sa-east-1      = "ami-0274fe6e"
-  }
+module "defaults" {
+  source = "./defaults"
+  region = "${var.region}"
+  cidr   = "${var.cidr}"
 }
 
 module "vpc" {
@@ -154,7 +126,7 @@ module "vpc" {
   cidr               = "${var.cidr}"
   internal_subnets   = "${var.internal_subnets}"
   external_subnets   = "${var.external_subnets}"
-  availability_zones = "${coalesce(var.availability_zones, lookup(var.default_availability_zones, var.region))}"
+  availability_zones = "${coalesce(var.availability_zones, module.defaults.availability_zones)}"
   environment        = "${var.environment}"
 }
 
@@ -180,7 +152,7 @@ module "dhcp" {
   source  = "./dhcp"
   name    = "${module.dns.name}"
   vpc_id  = "${module.vpc.id}"
-  servers = "${coalesce(var.domain_name_servers, cidrhost(var.cidr, 2))}"
+  servers = "${coalesce(var.domain_name_servers, module.defaults.domain_name_servers)}"
 }
 
 module "dns" {
@@ -200,7 +172,7 @@ module "ecs_cluster" {
   name                 = "default"
   environment          = "${var.environment}"
   vpc_id               = "${module.vpc.id}"
-  image_id             = "${coalesce(var.ecs_ami, lookup(var.default_ecs_ami, var.region))}"
+  image_id             = "${coalesce(var.ecs_ami, module.defaults.ecs_ami)}"
   subnet_ids           = "${module.vpc.internal_subnets}"
   key_name             = "${var.key_name}"
   instance_type        = "${var.ecs_instance_type}"
@@ -209,7 +181,7 @@ module "ecs_cluster" {
   max_size             = "${var.ecs_max_size}"
   desired_capacity     = "${var.ecs_desired_capacity}"
   region               = "${var.region}"
-  availability_zones   = "${var.availability_zones}"
+  availability_zones   = "${module.vpc.availability_zones}"
   root_volume_size     = "${var.ecs_root_volume_size}"
   docker_volume_size   = "${var.ecs_docker_volume_size}"
   docker_auth_type     = "${var.ecs_docker_auth_type}"
@@ -221,7 +193,7 @@ module "s3_logs" {
   source      = "./s3-logs"
   name        = "${var.name}"
   environment = "${var.environment}"
-  region      = "${var.region}"
+  account_id  = "${module.defaults.s3_logs_account_id}"
 }
 
 // The region in which the infra lives.
@@ -286,7 +258,7 @@ output "cluster" {
 
 // The VPC availability zones.
 output "availability_zones" {
-  value = "${var.availability_zones}"
+  value = "${module.vpc.availability_zones}"
 }
 
 // The VPC security group ID.
