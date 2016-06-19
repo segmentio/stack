@@ -10,6 +10,10 @@ variable "vpc_id" {
   description = "The VPC ID to use"
 }
 
+variable "zone_id" {
+  description = "The Route53 Zone ID where the DNS record will be created"
+}
+
 variable "security_groups" {
   description = "A comma-separated list of security group IDs"
 }
@@ -52,6 +56,11 @@ variable "backup_retention_period" {
 variable "publicly_accessible" {
   description = "When set to true the RDS cluster can be reached from outside the VPC"
   default     = false
+}
+
+variable "dns_name" {
+  description = "Route53 record name for the RDS database, defaults to the database name if not set"
+  default     = ""
 }
 
 resource "aws_security_group" "main" {
@@ -105,6 +114,14 @@ resource "aws_rds_cluster" "main" {
   db_subnet_group_name    = "${aws_db_subnet_group.main.id}"
 }
 
+resource "aws_route53_record" "main" {
+  zone_id = "${var.zone_id}"
+  name    = "${coalesce(var.dns_name, var.name)}"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["${aws_rds_cluster.main.address}"]
+}
+
 // The cluster identifier.
 output "id" {
   value = "${aws_rds_cluster.main.id}"
@@ -113,4 +130,8 @@ output "id" {
 // The address of the rds instance.
 output "address" {
   value = "${aws_rds_cluster.main.address}"
+}
+
+output "fqdn" {
+  value = "${aws_route53_record.main.fqdn}"
 }
