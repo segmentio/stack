@@ -169,7 +169,7 @@ module "iam_role" {
 
 module "ecs_cluster" {
   source               = "./ecs-cluster"
-  name                 = "default"
+  name                 = "${var.name}"
   environment          = "${var.environment}"
   vpc_id               = "${module.vpc.id}"
   image_id             = "${coalesce(var.ecs_ami, module.defaults.ecs_ami)}"
