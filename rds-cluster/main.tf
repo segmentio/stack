@@ -43,6 +43,11 @@ variable "instance_type" {
   default     = "db.r3.large"
 }
 
+variable "instance_count" {
+  description = "How many instances will be provisioned in the RDS cluster"
+  default     = 1
+}
+
 variable "preferred_backup_window" {
   description = "The time window on which backups will be made (HH:mm-HH:mm)"
   default     = "07:00-09:00"
@@ -63,14 +68,19 @@ variable "dns_name" {
   default     = ""
 }
 
+variable "port" {
+  description = "The port at which the database listens for incoming connections"
+  default     = 3306
+}
+
 resource "aws_security_group" "main" {
   name        = "${var.name}-rds-cluster"
   description = "Allows traffic to rds from other security groups"
   vpc_id      = "${var.vpc_id}"
 
   ingress {
-    from_port       = 3306
-    to_port         = 3306
+    from_port       = "${var.port}"
+    to_port         = "${var.port}"
     protocol        = "TCP"
     security_groups = ["${split(",", var.security_groups)}"]
   }
@@ -78,7 +88,7 @@ resource "aws_security_group" "main" {
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "-1"
+    protocol    = -1
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -90,12 +100,12 @@ resource "aws_security_group" "main" {
 
 resource "aws_db_subnet_group" "main" {
   name        = "${var.name}"
-  description = "rds cluster subnet group"
+  description = "RDS cluster subnet group"
   subnet_ids  = ["${split(",", var.subnet_ids)}"]
 }
 
 resource "aws_rds_cluster_instance" "cluster_instances" {
-  count                = 1
+  count                = "${var.instance_count}"
   db_subnet_group_name = "${aws_db_subnet_group.main.id}"
   cluster_identifier   = "${aws_rds_cluster.main.id}"
   publicly_accessible  = "${var.publicly_accessible}"
@@ -112,6 +122,7 @@ resource "aws_rds_cluster" "main" {
   preferred_backup_window = "${var.preferred_backup_window}"
   vpc_security_group_ids  = ["${aws_security_group.main.id}"]
   db_subnet_group_name    = "${aws_db_subnet_group.main.id}"
+  port                    = "${var.port}"
 }
 
 resource "aws_route53_record" "main" {
@@ -119,7 +130,7 @@ resource "aws_route53_record" "main" {
   name    = "${coalesce(var.dns_name, var.name)}"
   type    = "CNAME"
   ttl     = 300
-  records = ["${aws_rds_cluster.main.address}"]
+  records = ["${aws_rds_cluster.main.endpoint}"]
 }
 
 // The cluster identifier.
@@ -127,11 +138,14 @@ output "id" {
   value = "${aws_rds_cluster.main.id}"
 }
 
-// The address of the rds instance.
-output "address" {
-  value = "${aws_rds_cluster.main.address}"
+output "endpoint" {
+  value = "${aws_rds_cluster.main.endpoint}"
 }
 
 output "fqdn" {
   value = "${aws_route53_record.main.fqdn}"
+}
+
+output "port" {
+  value = "${aws_rds_cluster.main.port}"
 }
