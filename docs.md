@@ -310,6 +310,7 @@
 | name | The name will be used to prefix and tag the resources, e.g mydb | - | yes |
 | environment | The environment tag, e.g prod | - | yes |
 | vpc_id | The VPC ID to use | - | yes |
+| zone_id | The Route53 Zone ID where the DNS record will be created | - | yes |
 | security_groups | A comma-separated list of security group IDs | - | yes |
 | subnet_ids | A comma-separated list of subnet IDs | - | yes |
 | availability_zones | A comma-separated list of availability zones | - | yes |
@@ -317,16 +318,21 @@
 | master_username | The master user username | - | yes |
 | master_password | The master user password | - | yes |
 | instance_type | The type of instances that the RDS cluster will be running on | `"db.r3.large"` | no |
+| instance_count | How many instances will be provisioned in the RDS cluster | `1` | no |
 | preferred_backup_window | The time window on which backups will be made (HH:mm-HH:mm) | `"07:00-09:00"` | no |
 | backup_retention_period | The backup retention period | `5` | no |
 | publicly_accessible | When set to true the RDS cluster can be reached from outside the VPC | `false` | no |
+| dns_name | Route53 record name for the RDS database, defaults to the database name if not set | `""` | no |
+| port | The port at which the database listens for incoming connections | `3306` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
 | id | The cluster identifier. |
-| address | The address of the rds instance. |
+| endpoint |  |
+| fqdn |  |
+| port |  |
 
 # s3-logs
 
