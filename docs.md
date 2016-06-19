@@ -19,18 +19,16 @@
 
 | Name | Description | Default | Required |
 |------|-------------|:-----:|:-----:|
-| base_ami |  | `"ami-729c5912"` | no |
-| ecs_ami |  | `"ami-f3985d93"` | no |
 | name | the name of your stack, e.g. "segment" | - | yes |
 | environment | the name of your environment, e.g. "prod-west" | - | yes |
 | key_name | the name of the ssh key to use, e.g. "internal-key" | - | yes |
 | domain_name | the internal DNS name to use with services | `"stack.local"` | no |
 | domain_name_servers | the internal DNS servers, defaults to the internal route53 server of the VPC | `""` | no |
-| region | the AWS region | `"us-west-2"` | no |
-| cidr | the CIDR block to provision for the VPC | `"10.30.0.0/16"` | no |
-| internal_subnets | a comma-separated list of CIDRs for internal subnets in your VPC | `"10.30.0.0/19,10.30.64.0/19,10.30.128.0/19"` | no |
-| external_subnets | a comma-separated list of CIDRs for external subnets in your VPC | `"10.30.32.0/20,10.30.96.0/20,10.30.160.0/20"` | no |
-| availability_zones | a comma-separated list of availability zones | `"us-west-2a,us-west-2b,us-west-2c"` | no |
+| region | the AWS region in which resources are created, you must set the availability_zones variable as well if you define this value to something other than the default | `"us-west-2"` | no |
+| cidr | the CIDR block to provision for the VPC, if set to something other than the default, both internal_subnets and external_subnets have to be defined as well | `"10.30.0.0/16"` | no |
+| internal_subnets | a comma-separated list of CIDRs for internal subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | `"10.30.0.0/19,10.30.64.0/19,10.30.128.0/19"` | no |
+| external_subnets | a comma-separated list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | `"10.30.32.0/20,10.30.96.0/20,10.30.160.0/20"` | no |
+| availability_zones | a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well | `"us-west-2a,us-west-2b,us-west-2c"` | no |
 | ecs_instance_type | the instance type to use for your default ecs cluster | `"m4.large"` | no |
 | ecs_min_size | the minimum number of instances to use in the default ecs cluster | `3` | no |
 | ecs_max_size | the maximum number of instances to use in the default ecs cluster | `100` | no |
@@ -39,7 +37,8 @@
 | ecs_docker_volume_size | the size of the ecs instance docker volume | `25` | no |
 | ecs_docker_auth_type | The docker auth type, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the possible values | `""` | no |
 | ecs_docker_auth_data | A JSON object providing the docker auth data, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the supported formats | `""` | no |
-| ecs_security_groups | A coma separated list of security groups from which ingest traffic will be allowed on the ECS cluster, it defaults to allowing ingress traffic on port 22 and coming grom the ELBs | `""` | no |
+| ecs_security_groups | A comma separated list of security groups from which ingest traffic will be allowed on the ECS cluster, it defaults to allowing ingress traffic on port 22 and coming grom the ELBs | `""` | no |
+| ecs_ami | The AMI that will be used to launch EC2 instances in the ECS cluster | `""` | no |
 
 ## Outputs
 
@@ -75,7 +74,7 @@
  Usage:
 
     module "bastion" {
-      source            = "github.com/segmentio/stack"
+      source            = "github.com/segmentio/stack/bastion"
       region            = "us-west-2"
       security_groups   = "sg-1,sg-2"
       vpc_id            = "vpc-12"
@@ -104,6 +103,40 @@
 |------|-------------|
 | external_ip | Bastion external IP address. |
 
+# defaults
+
+ This module is used to set configuration defaults for the AWS infrastructure.
+ It doesn't provide much value when used on its own because terraform makes it
+ hard to do dynamic generations of things like subnets, for now it's used as
+ a helper module for the stack.
+
+ Usage:
+
+     module "defaults" {
+       source = "github.com/segmentio/stack/defaults"
+       region = "us-east-1"
+       cidr   = "10.0.0.0/16"
+     }
+
+
+
+## Inputs
+
+| Name | Description | Default | Required |
+|------|-------------|:-----:|:-----:|
+| region | The AWS region | - | yes |
+| cidr | The CIDR block to provision for the VPC | - | yes |
+| default_ecs_ami |  | - | yes |
+| default_log_account_ids |  | - | yes |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| domain_name_servers |  |
+| ecs_ami |  |
+| s3_logs_account_id |  |
+
 # dhcp
 
 
@@ -113,7 +146,7 @@
 |------|-------------|:-----:|:-----:|
 | name | The domain name to setup DHCP for | - | yes |
 | vpc_id | The ID of the VPC to setup DHCP for | - | yes |
-| servers | A coma separated list of the IP addresses of internal DHCP servers | - | yes |
+| servers | A comma separated list of the IP addresses of internal DHCP servers | - | yes |
 
 # dns
 
@@ -304,8 +337,7 @@
 |------|-------------|:-----:|:-----:|
 | name |  | - | yes |
 | environment |  | - | yes |
-| region |  | - | yes |
-| log_account_ids |  | - | yes |
+| account_id |  | - | yes |
 
 ## Outputs
 
@@ -444,6 +476,7 @@
 | external_subnets | A comma-separated list of subnet IDs. |
 | internal_subnets | A comma-separated list of subnet IDs. |
 | security_group | The default VPC security group ID. |
+| availability_zones | The list of availability zones of the VPC. |
 
 # web-service
 

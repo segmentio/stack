@@ -7,7 +7,7 @@ variable "vpc_id" {
 }
 
 variable "servers" {
-  description = "A coma separated list of the IP addresses of internal DHCP servers"
+  description = "A comma separated list of the IP addresses of internal DHCP servers"
 }
 
 resource "aws_vpc_dhcp_options" "dns_resolver" {
