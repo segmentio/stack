@@ -52,14 +52,14 @@ resource "aws_internet_gateway" "main" {
 }
 
 resource "aws_nat_gateway" "main" {
-  count         = "${length(split(",", var.internal_subnets))}"
+  count         = "${length(compact(split(",", var.internal_subnets)))}"
   allocation_id = "${element(aws_eip.nat.*.id, count.index)}"
   subnet_id     = "${element(aws_subnet.external.*.id, count.index)}"
   depends_on    = ["aws_internet_gateway.main"]
 }
 
 resource "aws_eip" "nat" {
-  count = "${length(split(",", var.internal_subnets))}"
+  count = "${length(compact(split(",", var.internal_subnets)))}"
   vpc   = true
 }
 
@@ -71,7 +71,7 @@ resource "aws_subnet" "internal" {
   vpc_id            = "${aws_vpc.main.id}"
   cidr_block        = "${element(split(",", var.internal_subnets), count.index)}"
   availability_zone = "${element(split(",", var.availability_zones), count.index)}"
-  count             = "${length(split(",", var.internal_subnets))}"
+  count             = "${length(compact(split(",", var.internal_subnets)))}"
 
   tags {
     Name = "${var.name}-${format("internal-%03d", count.index+1)}"
@@ -82,7 +82,7 @@ resource "aws_subnet" "external" {
   vpc_id                  = "${aws_vpc.main.id}"
   cidr_block              = "${element(split(",", var.external_subnets), count.index)}"
   availability_zone       = "${element(split(",", var.availability_zones), count.index)}"
-  count                   = "${length(split(",", var.external_subnets))}"
+  count                   = "${length(compact(split(",", var.external_subnets)))}"
   map_public_ip_on_launch = true
 
   tags {
@@ -108,7 +108,7 @@ resource "aws_route_table" "external" {
 }
 
 resource "aws_route_table" "internal" {
-  count  = "${length(split(",", var.internal_subnets))}"
+  count  = "${length(compact(split(",", var.internal_subnets)))}"
   vpc_id = "${aws_vpc.main.id}"
 
   route {
@@ -126,13 +126,13 @@ resource "aws_route_table" "internal" {
  */
 
 resource "aws_route_table_association" "internal" {
-  count          = "${length(split(",", var.internal_subnets))}"
+  count          = "${length(compact(split(",", var.internal_subnets)))}"
   subnet_id      = "${element(aws_subnet.internal.*.id, count.index)}"
   route_table_id = "${element(aws_route_table.internal.*.id, count.index)}"
 }
 
 resource "aws_route_table_association" "external" {
-  count          = "${length(split(",", var.internal_subnets))}"
+  count          = "${length(compact(split(",", var.external_subnets)))}"
   subnet_id      = "${element(aws_subnet.external.*.id, count.index)}"
   route_table_id = "${aws_route_table.external.id}"
 }
