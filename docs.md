@@ -226,6 +226,7 @@
 | min_size | Minimum instance count | `3` | no |
 | max_size | Maxmimum instance count | `100` | no |
 | desired_capacity | Desired instance count | `3` | no |
+| associate_public_ip_address | Should created instances be publicly accessible (if the SG allows) | `false` | no |
 | root_volume_size | Root volume size in GB | `25` | no |
 | docker_volume_size | Attached EBS volume size in GB | `25` | no |
 | docker_auth_type | The docker auth type, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the possible values | `""` | no |
