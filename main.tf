@@ -65,6 +65,11 @@ variable "ecs_instance_type" {
   default     = "m4.large"
 }
 
+variable "ecs_instance_ebs_optimized" {
+  description = "ebs optimize or not cluster instances"
+  default     = true
+}
+
 variable "ecs_min_size" {
   description = "the minimum number of instances to use in the default ecs cluster"
 
@@ -168,25 +173,26 @@ module "iam_role" {
 }
 
 module "ecs_cluster" {
-  source               = "./ecs-cluster"
-  name                 = "default"
-  environment          = "${var.environment}"
-  vpc_id               = "${module.vpc.id}"
-  image_id             = "${coalesce(var.ecs_ami, module.defaults.ecs_ami)}"
-  subnet_ids           = "${module.vpc.internal_subnets}"
-  key_name             = "${var.key_name}"
-  instance_type        = "${var.ecs_instance_type}"
-  iam_instance_profile = "${module.iam_role.profile}"
-  min_size             = "${var.ecs_min_size}"
-  max_size             = "${var.ecs_max_size}"
-  desired_capacity     = "${var.ecs_desired_capacity}"
-  region               = "${var.region}"
-  availability_zones   = "${module.vpc.availability_zones}"
-  root_volume_size     = "${var.ecs_root_volume_size}"
-  docker_volume_size   = "${var.ecs_docker_volume_size}"
-  docker_auth_type     = "${var.ecs_docker_auth_type}"
-  docker_auth_data     = "${var.ecs_docker_auth_data}"
-  security_groups      = "${coalesce(var.ecs_security_groups, format("%s,%s,%s", module.security_groups.internal_ssh, module.security_groups.internal_elb, module.security_groups.external_elb))}"
+  source                 = "./ecs-cluster"
+  name                   = "default"
+  environment            = "${var.environment}"
+  vpc_id                 = "${module.vpc.id}"
+  image_id               = "${coalesce(var.ecs_ami, module.defaults.ecs_ami)}"
+  subnet_ids             = "${module.vpc.internal_subnets}"
+  key_name               = "${var.key_name}"
+  instance_type          = "${var.ecs_instance_type}"
+  instance_ebs_optimized = "${var.ecs_instance_ebs_optimized}"
+  iam_instance_profile   = "${module.iam_role.profile}"
+  min_size               = "${var.ecs_min_size}"
+  max_size               = "${var.ecs_max_size}"
+  desired_capacity       = "${var.ecs_desired_capacity}"
+  region                 = "${var.region}"
+  availability_zones     = "${module.vpc.availability_zones}"
+  root_volume_size       = "${var.ecs_root_volume_size}"
+  docker_volume_size     = "${var.ecs_docker_volume_size}"
+  docker_auth_type       = "${var.ecs_docker_auth_type}"
+  docker_auth_data       = "${var.ecs_docker_auth_data}"
+  security_groups        = "${coalesce(var.ecs_security_groups, format("%s,%s,%s", module.security_groups.internal_ssh, module.security_groups.internal_elb, module.security_groups.external_elb))}"
 }
 
 module "s3_logs" {
