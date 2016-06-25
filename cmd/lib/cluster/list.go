@@ -10,7 +10,7 @@ import (
 	"github.com/segmentio/stack/cmd/lib"
 )
 
-func CmdList(prog string, target string, args ...string) (err error) {
+func CmdList(prog string, target string, cmd string, args ...string) (err error) {
 	var client = ecs.New(session.New())
 	var list *ecs.ListClustersOutput
 	var describe *ecs.DescribeClustersOutput
@@ -26,18 +26,17 @@ func CmdList(prog string, target string, args ...string) (err error) {
 	}
 
 	table := stack.NewTable(
-		"NAME", "ARN", ":STATUS:", "INSTANCES:", "SERVICES:", "PENDING:", "RUNNING:",
+		"NAME", ":STATUS:", "INSTANCES:", "SERVICES:", "PENDING TASKS:", "RUNNING TASKS:",
 	)
 
-	for _, c := range describe.Clusters {
+	for _, cluster := range describe.Clusters {
 		table.Append(stack.Row{
-			aws.StringValue(c.ClusterName),
-			aws.StringValue(c.ClusterArn),
-			aws.StringValue(c.Status),
-			strconv.Itoa(int(aws.Int64Value(c.RegisteredContainerInstancesCount))),
-			strconv.Itoa(int(aws.Int64Value(c.ActiveServicesCount))),
-			strconv.Itoa(int(aws.Int64Value(c.PendingTasksCount))),
-			strconv.Itoa(int(aws.Int64Value(c.RunningTasksCount))),
+			aws.StringValue(cluster.ClusterName),
+			aws.StringValue(cluster.Status),
+			strconv.Itoa(int(aws.Int64Value(cluster.RegisteredContainerInstancesCount))),
+			strconv.Itoa(int(aws.Int64Value(cluster.ActiveServicesCount))),
+			strconv.Itoa(int(aws.Int64Value(cluster.PendingTasksCount))),
+			strconv.Itoa(int(aws.Int64Value(cluster.RunningTasksCount))),
 		})
 	}
 

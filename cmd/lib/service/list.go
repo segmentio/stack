@@ -1,6 +1,6 @@
 package service
 
-func CmdList(prog string, target string, args ...string) (err error) {
+func CmdList(prog string, target string, cmd string, args ...string) (err error) {
 
 	return
 }

@@ -11,14 +11,15 @@ import (
 	"github.com/segmentio/stack/cmd/lib/service"
 )
 
-type command map[string](func(string, string, ...string) error)
+type command map[string](func(string, string, string, ...string) error)
 
 type commands map[string]command
 
 func main() {
 	var cmds = commands{
 		"cluster": {
-			"ls": cluster.CmdList,
+			"instances": cluster.CmdInstances,
+			"ls":        cluster.CmdList,
 		},
 		"service": {
 			"ls": service.CmdList,
@@ -55,7 +56,7 @@ func run(cmds commands, args []string) (err error) {
 		return cmdHelp(cmd, prog, target)
 	}
 
-	return cmd[args[2]](prog, target, args[3:]...)
+	return cmd[args[2]](prog, target, args[2], args[3:]...)
 }
 
 func help(cmds commands, args []string) (err error) {
