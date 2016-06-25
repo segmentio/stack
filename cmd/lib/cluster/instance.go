@@ -3,6 +3,7 @@ package cluster
 import (
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -40,7 +41,7 @@ func CmdInstances(prog string, target string, cmd string, args ...string) (err e
 	for _, instance := range describe.ContainerInstances {
 		table.Append(stack.Row{
 			aws.StringValue(instance.Ec2InstanceId),
-			aws.StringValue(instance.Status),
+			strings.ToLower(aws.StringValue(instance.Status)),
 			strconv.FormatBool(aws.BoolValue(instance.AgentConnected)),
 			strconv.Itoa(int(aws.Int64Value(instance.PendingTasksCount))),
 			strconv.Itoa(int(aws.Int64Value(instance.RunningTasksCount))),

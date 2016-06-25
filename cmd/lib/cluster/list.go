@@ -3,6 +3,7 @@ package cluster
 import (
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -32,7 +33,7 @@ func CmdList(prog string, target string, cmd string, args ...string) (err error)
 	for _, cluster := range describe.Clusters {
 		table.Append(stack.Row{
 			aws.StringValue(cluster.ClusterName),
-			aws.StringValue(cluster.Status),
+			strings.ToLower(aws.StringValue(cluster.Status)),
 			strconv.Itoa(int(aws.Int64Value(cluster.RegisteredContainerInstancesCount))),
 			strconv.Itoa(int(aws.Int64Value(cluster.ActiveServicesCount))),
 			strconv.Itoa(int(aws.Int64Value(cluster.PendingTasksCount))),
