@@ -20,25 +20,31 @@ func CmdList(prog string, target string, cmd string, args ...string) (err error)
 		return
 	}
 
-	if describe, err = client.DescribeClusters(&ecs.DescribeClustersInput{
-		Clusters: list.ClusterArns,
-	}); err != nil {
-		return
+	if len(list.ClusterArns) != 0 {
+		if describe, err = client.DescribeClusters(&ecs.DescribeClustersInput{
+			Clusters: list.ClusterArns,
+		}); err != nil {
+			return
+		}
 	}
 
 	table := stack.NewTable(
 		"NAME", ":STATUS:", "INSTANCES:", "SERVICES:", "PENDING TASKS:", "RUNNING TASKS:",
 	)
 
-	for _, cluster := range describe.Clusters {
-		table.Append(stack.Row{
-			aws.StringValue(cluster.ClusterName),
-			strings.ToLower(aws.StringValue(cluster.Status)),
-			strconv.Itoa(int(aws.Int64Value(cluster.RegisteredContainerInstancesCount))),
-			strconv.Itoa(int(aws.Int64Value(cluster.ActiveServicesCount))),
-			strconv.Itoa(int(aws.Int64Value(cluster.PendingTasksCount))),
-			strconv.Itoa(int(aws.Int64Value(cluster.RunningTasksCount))),
-		})
+	if describe != nil {
+		Sort(describe.Clusters)
+
+		for _, cluster := range describe.Clusters {
+			table.Append(stack.Row{
+				aws.StringValue(cluster.ClusterName),
+				strings.ToLower(aws.StringValue(cluster.Status)),
+				strconv.Itoa(int(aws.Int64Value(cluster.RegisteredContainerInstancesCount))),
+				strconv.Itoa(int(aws.Int64Value(cluster.ActiveServicesCount))),
+				strconv.Itoa(int(aws.Int64Value(cluster.PendingTasksCount))),
+				strconv.Itoa(int(aws.Int64Value(cluster.RunningTasksCount))),
+			})
+		}
 	}
 
 	_, err = table.WriteTo(os.Stdout)
