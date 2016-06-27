@@ -1,7 +1,6 @@
 package cluster
 
 import (
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -36,7 +35,8 @@ func CmdList(prog string, target string, cmd string, args ...string) (err error)
 		})
 	}
 
-	_, err = table.WriteTo(os.Stdout)
+	table.WriteTo(stack.Stdout)
+	stack.Stdout.Flush()
 	return
 }
 
