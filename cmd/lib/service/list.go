@@ -5,10 +5,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync/atomic"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/segmentio/stack/cmd/lib"
@@ -18,54 +19,22 @@ import (
 
 func CmdList(prog string, target string, cmd string, args ...string) (err error) {
 	var flags = flag.NewFlagSet("service", flag.ContinueOnError)
-	var client = ecs.New(session.New())
-	var list *ecs.ListClustersOutput
-	var filter string
+	var clusters stack.StringList
+	var services []*ecs.Service
 
-	flags.StringVar(&filter, "cluster", "", "the cluster to search for services in")
+	flags.Var(&clusters, "cluster", "a comma separated list of the clusters to search for services in")
 
 	if err = flags.Parse(args); err != nil {
 		return
 	}
 
-	if len(filter) != 0 {
-		list = &ecs.ListClustersOutput{ClusterArns: []*string{aws.String(filter)}}
-	} else {
-		if list, err = client.ListClusters(nil); err != nil {
-			return
-		}
-	}
-
-	counter := int32(len(list.ClusterArns))
-	services := make([]*ecs.Service, 0, 100)
-	servchan := make(chan *ecs.Service, 100)
-
-	if len(list.ClusterArns) != 0 {
-		for _, cluster := range list.ClusterArns {
-			go func(client *ecs.ECS, cluster string, outchan chan<- *ecs.Service, counter *int32) {
-				defer func() {
-					if atomic.AddInt32(counter, -1) == 0 {
-						close(outchan)
-					}
-				}()
-				if services, err := ListCluster(client, cluster); err == nil {
-					for _, s := range services {
-						outchan <- s
-					}
-				}
-			}(client, aws.StringValue(cluster), servchan, &counter)
-		}
-
-		for s := range servchan {
-			services = append(services, s)
-		}
+	if services, err = List(session.New(), clusters...); err != nil {
+		return
 	}
 
 	table := stack.NewTable(
-		"NAME", "STATUS", "CLUSTER", "TASK", "DESIRED COUNT:", "PENDING COUNT:", "RUNNING COUNT:", "CREATED ON",
+		"NAME", "STATUS", "CLUSTER", "TASK DEFINITION", "DESIRED COUNT:", "PENDING COUNT:", "RUNNING COUNT:", "CREATED ON",
 	)
-
-	Sort(services)
 
 	for _, service := range services {
 		_, _, cluster, _ := cluster.ParseArn(aws.StringValue(service.ClusterArn))
@@ -86,55 +55,99 @@ func CmdList(prog string, target string, cmd string, args ...string) (err error)
 	return
 }
 
-func ListCluster(client *ecs.ECS, cluster string) (services []*ecs.Service, err error) {
-	var list *ecs.ListServicesOutput
+func List(config client.ConfigProvider, clusters ...string) (services []*ecs.Service, err error) {
+	for r := range ListAsync(config, clusters...) {
+		if r.Error != nil {
+			err = stack.AppendError(err, r.Error)
+		} else {
+			services = append(services, r.Service)
+		}
+	}
+	Sort(services)
+	return
+}
+
+type ListResult struct {
+	Service *ecs.Service
+	Error   error
+}
+
+func ListAsync(config client.ConfigProvider, clusters ...string) (res <-chan ListResult) {
+	var cli = ecs.New(config)
+	var chn = make(chan ListResult, 10)
+	var arg <-chan cluster.ListArnResult
+
+	if len(clusters) == 0 {
+		arg = cluster.ListArnAsync(config)
+	} else {
+		c := make(chan cluster.ListArnResult, len(clusters))
+		c <- cluster.ListArnResult{ClusterArns: clusters}
+		arg = c
+		close(c)
+	}
+
+	go listAsync(cli, arg, chn)
+	res = chn
+	return
+}
+
+func listAsync(client *ecs.ECS, arg <-chan cluster.ListArnResult, res chan<- ListResult) {
+	defer close(res)
+
+	join := &sync.WaitGroup{}
+	defer join.Wait()
+
+	for c := range arg {
+		if c.Error != nil {
+			res <- ListResult{Error: c.Error}
+		} else {
+			join.Add(len(c.ClusterArns))
+			for _, arn := range c.ClusterArns {
+				go listClusterAsync(client, join, arn, res)
+			}
+		}
+	}
+}
+
+func listClusterAsync(client *ecs.ECS, join *sync.WaitGroup, cluster string, res chan<- ListResult) {
 	var token *string
-	var counter int32 = 1
-	var reschan = make(chan *ecs.Service, 100)
+
+	defer join.Done()
 
 	for {
+		var list *ecs.ListServicesOutput
+		var err error
+
 		if list, err = client.ListServices(&ecs.ListServicesInput{
 			Cluster:   aws.String(cluster),
 			NextToken: token,
 		}); err != nil {
-			return
-		}
-
-		if len(list.ServiceArns) == 0 {
+			res <- ListResult{Error: err}
 			break
 		}
 
-		atomic.AddInt32(&counter, 1)
-
-		go func(services []*string, counter *int32) {
-			defer func() {
-				if atomic.AddInt32(counter, -1) == 0 {
-					close(reschan)
-				}
-			}()
-
-			if describe, err := client.DescribeServices(&ecs.DescribeServicesInput{
-				Cluster:  aws.String(cluster),
-				Services: services,
-			}); err == nil {
-				for _, s := range describe.Services {
-					reschan <- s
-				}
-			}
-		}(list.ServiceArns, &counter)
+		if len(list.ServiceArns) != 0 {
+			join.Add(1)
+			go describeServicesAsync(client, join, cluster, list.ServiceArns, res)
+		}
 
 		if token = list.NextToken; token == nil {
 			break
 		}
 	}
+}
 
-	if atomic.AddInt32(&counter, -1) == 0 {
-		close(reschan)
+func describeServicesAsync(client *ecs.ECS, join *sync.WaitGroup, cluster string, services []*string, res chan<- ListResult) {
+	defer join.Done()
+
+	if d, err := client.DescribeServices(&ecs.DescribeServicesInput{
+		Cluster:  aws.String(cluster),
+		Services: services,
+	}); err != nil {
+		res <- ListResult{Error: err}
+	} else {
+		for _, s := range d.Services {
+			res <- ListResult{Service: s}
+		}
 	}
-
-	for s := range reschan {
-		services = append(services, s)
-	}
-
-	return
 }
