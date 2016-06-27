@@ -1,10 +1,9 @@
-package service
+package instance
 
 import (
 	"flag"
 	"strconv"
 	"sync"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/client"
@@ -15,55 +14,53 @@ import (
 )
 
 func CmdList(prog string, target string, cmd string, args ...string) (err error) {
-	var flags = flag.NewFlagSet("service", flag.ContinueOnError)
+	var flags = flag.NewFlagSet("instance", flag.ContinueOnError)
 	var clusters stack.StringList
-	var services []Service
+	var instances []Instance
 
-	flags.Var(&clusters, "cluster", "a comma separated list of the clusters to search for services in")
+	flags.Var(&clusters, "cluster", "a comma separated list of the clusters to search for instances in")
 
 	if err = flags.Parse(args); err != nil {
 		return
 	}
 
-	if services, err = List(session.New(), clusters...); err != nil {
+	if instances, err = List(session.New(), clusters...); err != nil {
 		return
 	}
 
 	table := stack.NewTable(
-		"NAME", "STATUS", "CLUSTER", "TASK DEFINITION", "DESIRED COUNT:", "PENDING COUNT:", "RUNNING COUNT:", "CREATED ON",
+		"ID", "CLUSTER", ":STATUS:", ":AGENT CONNECTED:", "PENDING TASKS:", "RUNNING TASKS:",
 	)
 
-	for _, service := range services {
+	for _, instance := range instances {
 		table.Append(stack.Row{
-			service.Name,
-			service.Status,
-			service.Cluster,
-			service.Task,
-			strconv.Itoa(service.DesiredCount),
-			strconv.Itoa(service.PendingCount),
-			strconv.Itoa(service.RunningCount),
-			service.CreatedOn.Format(time.RFC1123),
+			instance.ID,
+			instance.Cluster,
+			instance.Status,
+			strconv.FormatBool(instance.AgentConnected),
+			strconv.Itoa(instance.PendingTasksCount),
+			strconv.Itoa(instance.RunningTasksCount),
 		})
 	}
 
 	return table.Write(stack.Stdout)
 }
 
-func List(config client.ConfigProvider, clusters ...string) (services []Service, err error) {
-	for r := range ListAsync(config, clusters...) {
-		if r.Error != nil {
-			err = stack.AppendError(err, r.Error)
-		} else {
-			services = append(services, r.Service)
-		}
-	}
-	Sort(services)
-	return
+type ListResult struct {
+	Instance Instance
+	Error    error
 }
 
-type ListResult struct {
-	Service Service
-	Error   error
+func List(config client.ConfigProvider, clusters ...string) (instances []Instance, err error) {
+	for c := range ListAsync(config, clusters...) {
+		if c.Error != nil {
+			err = stack.AppendError(err, c.Error)
+		} else {
+			instances = append(instances, c.Instance)
+		}
+	}
+	Sort(instances)
+	return
 }
 
 func ListAsync(config client.ConfigProvider, clusters ...string) (res <-chan ListResult) {
@@ -109,10 +106,10 @@ func listClusterAsync(client *ecs.ECS, join *sync.WaitGroup, cluster string, res
 	defer join.Done()
 
 	for {
-		var list *ecs.ListServicesOutput
+		var list *ecs.ListContainerInstancesOutput
 		var err error
 
-		if list, err = client.ListServices(&ecs.ListServicesInput{
+		if list, err = client.ListContainerInstances(&ecs.ListContainerInstancesInput{
 			Cluster:   aws.String(cluster),
 			NextToken: token,
 		}); err != nil {
@@ -120,9 +117,9 @@ func listClusterAsync(client *ecs.ECS, join *sync.WaitGroup, cluster string, res
 			break
 		}
 
-		if len(list.ServiceArns) != 0 {
+		if len(list.ContainerInstanceArns) != 0 {
 			join.Add(1)
-			go describeServicesAsync(client, join, cluster, list.ServiceArns, res)
+			go describeContainerInstancesAsync(client, join, cluster, list.ContainerInstanceArns, res)
 		}
 
 		if token = list.NextToken; token == nil {
@@ -131,17 +128,17 @@ func listClusterAsync(client *ecs.ECS, join *sync.WaitGroup, cluster string, res
 	}
 }
 
-func describeServicesAsync(client *ecs.ECS, join *sync.WaitGroup, cluster string, services []*string, res chan<- ListResult) {
+func describeContainerInstancesAsync(client *ecs.ECS, join *sync.WaitGroup, cluster string, instances []*string, res chan<- ListResult) {
 	defer join.Done()
 
-	if d, err := client.DescribeServices(&ecs.DescribeServicesInput{
-		Cluster:  aws.String(cluster),
-		Services: services,
+	if d, err := client.DescribeContainerInstances(&ecs.DescribeContainerInstancesInput{
+		Cluster:            aws.String(cluster),
+		ContainerInstances: instances,
 	}); err != nil {
 		res <- ListResult{Error: err}
 	} else {
-		for _, s := range d.Services {
-			res <- ListResult{Service: makeService(s)}
+		for _, instance := range d.ContainerInstances {
+			res <- ListResult{Instance: makeInstance(cluster, instance)}
 		}
 	}
 }

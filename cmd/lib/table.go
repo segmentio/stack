@@ -1,8 +1,8 @@
 package stack
 
 import (
+	"bufio"
 	"fmt"
-	"io"
 	"strings"
 )
 
@@ -41,40 +41,32 @@ func (t *Table) Append(row Row) {
 	t.rows = append(t.rows, row)
 }
 
-func (t *Table) WriteTo(w io.Writer) (n int64, err error) {
-	var spaces = makeSpaces(t.widths)
+func (t *Table) Write(w *bufio.Writer) (err error) {
+	spaces := makeSpaces(t.widths)
 
 	for i, col := range t.cols {
-		var c int64
-
-		if c, err = writeCell(w, t.widths[i], col, spaces, left, i == len(t.cols)); err != nil {
-			return
+		if _, err = writeCell(w, t.widths[i], col, spaces, left, i == len(t.cols)); err != nil {
+			break
 		}
-
-		n += c
 	}
 
-	if _, err = io.WriteString(w, "\n"); err != nil {
+	if _, err = w.WriteString("\n"); err != nil {
 		return
 	}
 
 	for _, row := range t.rows {
 		for i, item := range row {
-			var c int64
-
-			if c, err = writeCell(w, t.widths[i], item, spaces, t.aligns[i], i == len(row)); err != nil {
+			if _, err = writeCell(w, t.widths[i], item, spaces, t.aligns[i], i == len(row)); err != nil {
 				return
 			}
-
-			n += c
 		}
 
-		if _, err = io.WriteString(w, "\n"); err != nil {
+		if _, err = w.WriteString("\n"); err != nil {
 			return
 		}
 	}
 
-	return
+	return w.Flush()
 }
 
 func makeSpaces(widths []int) (spaces string) {
@@ -147,7 +139,7 @@ func widthMax(widths []int) (v int) {
 	return
 }
 
-func writeCell(to io.Writer, width int, value string, spaces string, align int, last bool) (n int64, err error) {
+func writeCell(to *bufio.Writer, width int, value string, spaces string, align int, last bool) (n int64, err error) {
 	var l int
 	var r int
 
@@ -163,20 +155,20 @@ func writeCell(to io.Writer, width int, value string, spaces string, align int, 
 		r = width - (len(value) + l)
 	}
 
-	if _, err = io.WriteString(to, spaces[:l]); err != nil {
+	if _, err = to.WriteString(spaces[:l]); err != nil {
 		return
 	}
 
-	if _, err = io.WriteString(to, value); err != nil {
+	if _, err = to.WriteString(value); err != nil {
 		return
 	}
 
-	if _, err = io.WriteString(to, spaces[:r]); err != nil {
+	if _, err = to.WriteString(spaces[:r]); err != nil {
 		return
 	}
 
 	if !last {
-		if _, err = io.WriteString(to, "  "); err != nil {
+		if _, err = to.WriteString("  "); err != nil {
 			return
 		}
 	}

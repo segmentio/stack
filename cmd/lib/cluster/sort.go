@@ -1,22 +1,17 @@
 package cluster
 
-import (
-	"sort"
+import "sort"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ecs"
-)
-
-func Sort(clusters []*ecs.Cluster) {
-	sort.Sort(ClusterOrder(clusters))
+func Sort(clusters []Cluster) {
+	sort.Sort(NaturalOrder(clusters))
 }
 
-type ClusterOrder []*ecs.Cluster
+type NaturalOrder []Cluster
 
-func (list ClusterOrder) Len() int { return len(list) }
+func (list NaturalOrder) Len() int { return len(list) }
 
-func (list ClusterOrder) Swap(i int, j int) { list[i], list[j] = list[j], list[i] }
+func (list NaturalOrder) Swap(i int, j int) { list[i], list[j] = list[j], list[i] }
 
-func (list ClusterOrder) Less(i int, j int) bool {
-	return aws.StringValue(list[i].ClusterName) < aws.StringValue(list[j].ClusterName)
+func (list NaturalOrder) Less(i int, j int) bool {
+	return list[i].Name < list[j].Name
 }

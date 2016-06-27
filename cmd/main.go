@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/segmentio/stack/cmd/lib/cluster"
+	"github.com/segmentio/stack/cmd/lib/instance"
 	"github.com/segmentio/stack/cmd/lib/service"
 )
 
@@ -18,9 +19,13 @@ type commands map[string]command
 func main() {
 	var cmds = commands{
 		"cluster": {
-			"instances": cluster.CmdInstances,
-			"ls":        cluster.CmdList,
+			"ls": cluster.CmdList,
 		},
+
+		"instance": {
+			"ls": instance.CmdList,
+		},
+
 		"service": {
 			"ls": service.CmdList,
 		},

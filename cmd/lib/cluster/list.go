@@ -3,7 +3,6 @@ package cluster
 import (
 	"sort"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -14,7 +13,7 @@ import (
 )
 
 func CmdList(prog string, target string, cmd string, args ...string) (err error) {
-	var clusters []*ecs.Cluster
+	var clusters []Cluster
 
 	if clusters, err = List(session.New()); err != nil {
 		return
@@ -26,26 +25,24 @@ func CmdList(prog string, target string, cmd string, args ...string) (err error)
 
 	for _, cluster := range clusters {
 		table.Append(stack.Row{
-			aws.StringValue(cluster.ClusterName),
-			strings.ToLower(aws.StringValue(cluster.Status)),
-			strconv.Itoa(int(aws.Int64Value(cluster.RegisteredContainerInstancesCount))),
-			strconv.Itoa(int(aws.Int64Value(cluster.ActiveServicesCount))),
-			strconv.Itoa(int(aws.Int64Value(cluster.PendingTasksCount))),
-			strconv.Itoa(int(aws.Int64Value(cluster.RunningTasksCount))),
+			cluster.Name,
+			cluster.Status,
+			strconv.Itoa(cluster.RegisteredContainerInstancesCount),
+			strconv.Itoa(cluster.ActiveServicesCount),
+			strconv.Itoa(cluster.PendingTasksCount),
+			strconv.Itoa(cluster.RunningTasksCount),
 		})
 	}
 
-	table.WriteTo(stack.Stdout)
-	stack.Stdout.Flush()
-	return
+	return table.Write(stack.Stdout)
 }
 
 type ListResult struct {
-	Cluster *ecs.Cluster
+	Cluster Cluster
 	Error   error
 }
 
-func List(config client.ConfigProvider) (clusters []*ecs.Cluster, err error) {
+func List(config client.ConfigProvider) (clusters []Cluster, err error) {
 	for r := range ListAsync(config) {
 		if r.Error != nil {
 			err = stack.AppendError(err, r.Error)
@@ -142,7 +139,7 @@ func describeClustersAsync(client *ecs.ECS, clusters []string, join *sync.WaitGr
 		res <- ListResult{Error: err}
 	} else {
 		for _, c := range d.Clusters {
-			res <- ListResult{Cluster: c}
+			res <- ListResult{Cluster: makeCluster(c)}
 		}
 	}
 }
