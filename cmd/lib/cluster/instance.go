@@ -1,7 +1,6 @@
 package cluster
 
 import (
-	"os"
 	"strconv"
 	"strings"
 
@@ -48,6 +47,7 @@ func CmdInstances(prog string, target string, cmd string, args ...string) (err e
 		})
 	}
 
-	_, err = table.WriteTo(os.Stdout)
+	table.WriteTo(stack.Stdout)
+	stack.Stdout.Flush()
 	return
 }
