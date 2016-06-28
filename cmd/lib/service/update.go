@@ -92,7 +92,8 @@ Error:
 		}
 
 		n++
-		fmt.Printf("\n\033[33m~ %s\033[0m\n    version: \"%s\" => \"%s\"\n", service.name, service.image.Version, version)
+		fmt.Printf("\n\033[33m~ %s\033[0m\n    version: %s => %s\n",
+			service.name, quote(service.image.Version), quote(version))
 
 		if plan {
 			continue
@@ -100,7 +101,7 @@ Error:
 
 		(*(service.version)).Token = token.Token{
 			Type: token.STRING,
-			Text: "\"" + version + "\"",
+			Text: quote(version),
 		}
 
 		printer.Fprint(b, service.file.Node)

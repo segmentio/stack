@@ -174,6 +174,10 @@ func unquote(s string) string {
 	return s
 }
 
+func quote(s string) string {
+	return strconv.Quote(s)
+}
+
 func defaultServiceName(image Image) string {
 	return strings.Replace(image.Base(), "/", "-", -1)
 }
@@ -185,7 +189,13 @@ func defaultVersionNode(obj *ast.ObjectType) (node *ast.LiteralType) {
 			&ast.ObjectKey{
 				Token: token.Token{
 					Type: token.STRING,
-					Text: "version =", // dirty hack, not sure how to make HCL output the '='
+					Text: "version",
+				},
+			},
+			&ast.ObjectKey{
+				Token: token.Token{
+					Type: token.ASSIGN,
+					Text: "=",
 				},
 			},
 		},
