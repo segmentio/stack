@@ -82,31 +82,40 @@ Error:
 		}
 	}
 
+	n := 0
 	b := &bytes.Buffer{}
 	b.Grow(16384)
 
 	for _, service := range services {
-		if version != service.image.Version {
-			fmt.Printf("\033[33m~ %s\033[0m\n    version: \"%s\" => \"%s\"\n\n", service.name, service.image.Version, version)
-
-			if plan {
-				continue
-			}
-
-			(*(service.version)).Token = token.Token{
-				Type: token.STRING,
-				Text: "\"" + version + "\"",
-			}
-
-			printer.Fprint(b, service.file.Node)
-			b.WriteString("\n")
-
-			if err = ioutil.WriteFile(service.path, b.Bytes(), os.FileMode(0644)); err != nil {
-				return
-			}
-
-			b.Reset()
+		if version == service.image.Version {
+			continue
 		}
+
+		n++
+		fmt.Printf("\n\033[33m~ %s\033[0m\n    version: \"%s\" => \"%s\"\n", service.name, service.image.Version, version)
+
+		if plan {
+			continue
+		}
+
+		(*(service.version)).Token = token.Token{
+			Type: token.STRING,
+			Text: "\"" + version + "\"",
+		}
+
+		printer.Fprint(b, service.file.Node)
+		b.WriteString("\n")
+
+		if err = ioutil.WriteFile(service.path, b.Bytes(), os.FileMode(0644)); err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		b.Reset()
+	}
+
+	if n != 0 {
+		fmt.Println()
 	}
 
 	return
