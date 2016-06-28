@@ -18,11 +18,13 @@ func CmdUpdate(prog string, target string, cmd string, args ...string) (err erro
 	var name string
 	var version string
 	var path stack.Path
+	var plan bool
 	var services []findResult
 
 	flags.StringVar(&image, "image", "", "the docker image of services that need to be updated")
 	flags.StringVar(&name, "name", "", "the name of the service that need to be updated")
 	flags.StringVar(&version, "version", "", "the new version of the services")
+	flags.BoolVar(&plan, "plan", false, "when this flag is set the update isn't executed")
 	flags.Var(&path, "path", "the paths to the directories contanining the terraform service definitions")
 
 	if err = flags.Parse(args); err != nil {
@@ -86,6 +88,10 @@ Error:
 	for _, service := range services {
 		if version != service.image.Version {
 			fmt.Printf("\033[33m~ %s\033[0m\n    version: \"%s\" => \"%s\"\n\n", service.name, service.image.Version, version)
+
+			if plan {
+				continue
+			}
 
 			(*(service.version)).Token = token.Token{
 				Type: token.STRING,
