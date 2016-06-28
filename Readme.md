@@ -61,10 +61,17 @@ Here's a sample service definition, try adding it to your `terraform.tf` file.
 ```hcl
 module "nginx" {
   # this sources from the "stack//service" module
-  source      = "github.com/segmentio/stack//service"
-  environment = "prod"
-  name        = "my-app"
-  image       = "nginx"
+  source          = "github.com/segmentio/stack//service"
+  name            = "my-app"
+  image           = "nginx"
+  port            = 80
+  environment     = "${module.stack.environment}"
+  cluster         = "${module.stack.cluster}"
+  iam_role        = "${module.stack.iam_role}"
+  security_groups = "${module.stack.internal_elb}"
+  subnet_ids      = "${module.stack.internal_subnets}"
+  log_bucket      = "${module.stack.log_bucket_id}"
+  zone_id         = "${module.stack.zone_id}"
 }
 ```
 
