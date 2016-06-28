@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 
+	"github.com/hashicorp/hcl/hcl/ast"
 	"github.com/hashicorp/hcl/hcl/printer"
 	"github.com/hashicorp/hcl/hcl/token"
 	"github.com/segmentio/stack/cmd/lib"
@@ -82,42 +84,66 @@ Error:
 		}
 	}
 
-	n := 0
-	b := &bytes.Buffer{}
-	b.Grow(16384)
+	change := 0
+	buffer := &bytes.Buffer{}
+	buffer.Grow(16384)
 
 	for _, service := range services {
 		if version == service.image.Version {
 			continue
 		}
 
-		n++
-		fmt.Printf("\n\033[33m~ %s\033[0m\n    version: %s => %s\n",
-			service.name, quote(service.image.Version), quote(version))
+		change++
+		printVersionChange(stack.Stdout, service.name, service.image.Version, version)
 
 		if plan {
 			continue
 		}
 
-		(*(service.version)).Token = token.Token{
-			Type: token.STRING,
-			Text: quote(version),
+		updateVersionNode(service.version, version)
+		writeHclFile(buffer, service.file)
+
+		if e := writeFile(service.path, buffer.Bytes()); e != nil {
+			err = stack.AppendError(err, e)
+			change--
 		}
 
-		printer.Fprint(b, service.file.Node)
-		b.WriteString("\n")
-
-		if err = ioutil.WriteFile(service.path, b.Bytes(), os.FileMode(0644)); err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		b.Reset()
+		buffer.Reset()
 	}
 
-	if n != 0 {
-		fmt.Println()
-	}
-
+	printSummary(stack.Stdout, change, plan)
 	return
+}
+
+func updateVersionNode(node *ast.LiteralType, version string) {
+	node.Token = token.Token{
+		Type: token.STRING,
+		Text: quote(version),
+	}
+}
+
+func writeHclFile(w io.Writer, file *ast.File) {
+	printer.Fprint(w, file.Node)
+	io.WriteString(w, "\n")
+}
+
+func writeFile(path string, content []byte) error {
+	return ioutil.WriteFile(path, content, os.FileMode(0644))
+}
+
+func printVersionChange(w io.Writer, service string, from string, to string) {
+	fmt.Fprintf(w,
+		"\n\033[33m~ %s\033[0m\n    version: %s => %s\n",
+		service,
+		quote(from),
+		quote(to),
+	)
+}
+
+func printSummary(w io.Writer, change int, plan bool) {
+	action := "Done"
+	if plan {
+		action = "Plan"
+	}
+	fmt.Fprintf(w, "\n\033[1m%s:\033[0m 0 to add, %d to change, 0 to destroy\n", action, change)
 }
