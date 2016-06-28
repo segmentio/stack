@@ -60,6 +60,11 @@ variable "availability_zones" {
   default     = "us-west-2a,us-west-2b,us-west-2c"
 }
 
+variable "ecs_cluster_name" {
+  description = "the name of the cluster, if not specified the variable name will be used"
+  default = ""
+}
+
 variable "ecs_instance_type" {
   description = "the instance type to use for your default ecs cluster"
   default     = "m4.large"
@@ -174,7 +179,7 @@ module "iam_role" {
 
 module "ecs_cluster" {
   source                 = "./ecs-cluster"
-  name                   = "default"
+  name                   = "${coalesce(var.ecs_cluster_name, var.name)}"
   environment            = "${var.environment}"
   vpc_id                 = "${module.vpc.id}"
   image_id               = "${coalesce(var.ecs_ami, module.defaults.ecs_ami)}"
