@@ -1,8 +1,8 @@
 package stack
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -41,8 +41,12 @@ func (t *Table) Append(row Row) {
 	t.rows = append(t.rows, row)
 }
 
-func (t *Table) Write(w *bufio.Writer) (err error) {
+func (t *Table) Write(w io.Writer) (err error) {
 	spaces := makeSpaces(t.widths)
+
+	if _, err = io.WriteString(w, "\033[1m"); err != nil {
+		return
+	}
 
 	for i, col := range t.cols {
 		if _, err = writeCell(w, t.widths[i], col, spaces, left, i == len(t.cols)); err != nil {
@@ -50,7 +54,7 @@ func (t *Table) Write(w *bufio.Writer) (err error) {
 		}
 	}
 
-	if _, err = w.WriteString("\n"); err != nil {
+	if _, err = io.WriteString(w, "\033[0m\n"); err != nil {
 		return
 	}
 
@@ -61,12 +65,12 @@ func (t *Table) Write(w *bufio.Writer) (err error) {
 			}
 		}
 
-		if _, err = w.WriteString("\n"); err != nil {
+		if _, err = io.WriteString(w, "\n"); err != nil {
 			return
 		}
 	}
 
-	return w.Flush()
+	return
 }
 
 func makeSpaces(widths []int) (spaces string) {
@@ -139,7 +143,7 @@ func widthMax(widths []int) (v int) {
 	return
 }
 
-func writeCell(to *bufio.Writer, width int, value string, spaces string, align int, last bool) (n int64, err error) {
+func writeCell(to io.Writer, width int, value string, spaces string, align int, last bool) (n int64, err error) {
 	var l int
 	var r int
 
@@ -155,20 +159,20 @@ func writeCell(to *bufio.Writer, width int, value string, spaces string, align i
 		r = width - (len(value) + l)
 	}
 
-	if _, err = to.WriteString(spaces[:l]); err != nil {
+	if _, err = io.WriteString(to, spaces[:l]); err != nil {
 		return
 	}
 
-	if _, err = to.WriteString(value); err != nil {
+	if _, err = io.WriteString(to, value); err != nil {
 		return
 	}
 
-	if _, err = to.WriteString(spaces[:r]); err != nil {
+	if _, err = io.WriteString(to, spaces[:r]); err != nil {
 		return
 	}
 
 	if !last {
-		if _, err = to.WriteString("  "); err != nil {
+		if _, err = io.WriteString(to, "  "); err != nil {
 			return
 		}
 	}
