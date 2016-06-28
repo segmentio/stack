@@ -9,7 +9,7 @@ func (s *StringList) String() string {
 }
 
 func (s *StringList) Set(v string) (err error) {
-	*s = append(*s, strings.Split(v, ",")...)
+	*s = StringList(strings.Split(v, ","))
 	return
 }
 

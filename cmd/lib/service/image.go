@@ -69,6 +69,10 @@ func (img Image) Canonical() Image {
 	return img
 }
 
+func (img Image) Base() string {
+	return img.Org + "/" + img.Name
+}
+
 func (img Image) String() string {
 	img = img.Canonical()
 

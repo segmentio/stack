@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -27,11 +28,12 @@ func main() {
 		},
 
 		"service": {
-			"ls": service.CmdList,
+			"ls":     service.CmdList,
+			"update": service.CmdUpdate,
 		},
 	}
 
-	if err := run(cmds, args(os.Args...)); err != nil {
+	if err := run(cmds, args(os.Args...)); err != nil && err != flag.ErrHelp {
 		fmt.Println(err)
 		os.Exit(1)
 	}
