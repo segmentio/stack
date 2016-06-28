@@ -178,10 +178,15 @@ func quote(s string) string {
 	return strconv.Quote(s)
 }
 
+// This is the same logic that the stack/task module implements to
+// generate a task name from the docker image when none is specified.
 func defaultServiceName(image Image) string {
 	return strings.Replace(image.Base(), "/", "-", -1)
 }
 
+// When no `version` is set in the terraform file we need to inject it
+// into the parse tree to be able to set it to a different value (this
+// is required by the service update command).
 func defaultVersionNode(obj *ast.ObjectType) (node *ast.LiteralType) {
 	node = &ast.LiteralType{}
 	obj.List.Add(&ast.ObjectItem{
