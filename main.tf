@@ -60,6 +60,11 @@ variable "availability_zones" {
   default     = "us-west-2a,us-west-2b,us-west-2c"
 }
 
+variable "bastion_instance_type" {
+  description = "Instance type for the bastion"
+  default = "t2.micro"
+}
+
 variable "ecs_cluster_name" {
   description = "the name of the cluster, if not specified the variable name will be used"
   default = ""
@@ -151,6 +156,7 @@ module "security_groups" {
 module "bastion" {
   source          = "./bastion"
   region          = "${var.region}"
+  instance_type   = "${var.bastion_instance_type}"
   security_groups = "${module.security_groups.external_ssh},${module.security_groups.internal_ssh}"
   vpc_id          = "${module.vpc.id}"
   subnet_id       = "${element(split(",",module.vpc.external_subnets), 0)}"
