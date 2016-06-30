@@ -156,7 +156,7 @@ module "security_groups" {
 module "bastion" {
   source          = "./bastion"
   region          = "${var.region}"
-  instance_type	  = "${var.bastion_instance_type}"
+  instance_type   = "${var.bastion_instance_type}"
   security_groups = "${module.security_groups.external_ssh},${module.security_groups.internal_ssh}"
   vpc_id          = "${module.vpc.id}"
   subnet_id       = "${element(split(",",module.vpc.external_subnets), 0)}"
