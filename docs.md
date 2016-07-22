@@ -30,6 +30,7 @@
 | external_subnets | a comma-separated list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | `"10.30.32.0/20,10.30.96.0/20,10.30.160.0/20"` | no |
 | availability_zones | a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well | `"us-west-2a,us-west-2b,us-west-2c"` | no |
 | ecs_instance_type | the instance type to use for your default ecs cluster | `"m4.large"` | no |
+| ecs_instance_ebs_optimized | use EBS - not all instance types support EBS | `"true"` | no |
 | ecs_min_size | the minimum number of instances to use in the default ecs cluster | `3` | no |
 | ecs_max_size | the maximum number of instances to use in the default ecs cluster | `100` | no |
 | ecs_desired_capacity | the desired number of instances to use in the default ecs cluster | `3` | no |
