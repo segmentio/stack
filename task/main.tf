@@ -62,6 +62,11 @@ variable "memory" {
   default     = 512
 }
 
+variable "mount_points" {
+  description = "The raw json on the mount points"
+  default     = "[]"
+}
+
 /**
  * Resources.
  */
@@ -88,7 +93,7 @@ resource "aws_ecs_task_definition" "main" {
     "name": "${var.name}",
     "portMappings": ${var.ports},
     "entryPoint": ${var.entry_point},
-    "mountPoints": [],
+    "mountPoints": ${var.mount_points},
     "logConfiguration": {
       "logDriver": "journald",
       "options": {

@@ -98,6 +98,11 @@ variable "cpu" {
   default     = 512
 }
 
+variable "mount_points" {
+  description = "The raw json on the mount points"
+  default     = "[]"
+}
+
 variable "protocol" {
   description = "The ELB protocol, HTTP or TCP"
   default     = "HTTP"
@@ -155,6 +160,7 @@ module "task" {
   env_vars      = "${var.env_vars}"
   memory        = "${var.memory}"
   cpu           = "${var.cpu}"
+  mount_points  = "${mount_points}"
 
   ports = <<EOF
   [
