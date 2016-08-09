@@ -1,7 +1,7 @@
 
 dependencies:
   override:
-    - sudo curl -L# https://releases.hashicorp.com/terraform/0.6.16/terraform_0.6.16_linux_amd64.zip -o /usr/local/bin/tf.zip
+    - sudo curl -L# https://releases.hashicorp.com/terraform/0.7.0/terraform_0.7.0_linux_amd64.zip -o /usr/local/bin/tf.zip
     - cd /usr/local/bin && sudo unzip tf.zip
 
 test:
