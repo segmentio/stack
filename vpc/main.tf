@@ -168,7 +168,7 @@ output "availability_zones" {
 
 // The internal route table ID.
 output "internal_rtb_id" {
-  value = "${aws_route_table.internal.id}"
+  value = "${join(",", aws_route_table.internal.*.id)}"
 }
 
 // The external route table ID.
