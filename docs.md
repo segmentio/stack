@@ -485,6 +485,8 @@
 | internal_subnets | A comma-separated list of subnet IDs. |
 | security_group | The default VPC security group ID. |
 | availability_zones | The list of availability zones of the VPC. |
+| internal_rtb_id | The internal route table ID. |
+| external_rtb_id | The external route table ID. |
 
 # web-service
 
