@@ -165,3 +165,13 @@ output "security_group" {
 output "availability_zones" {
   value = "${join(",", aws_subnet.external.*.availability_zone)}"
 }
+
+// The internal route table ID.
+output "internal_rtb_id" {
+  value = "${aws_route_table.internal.id}"
+}
+
+// The external route table ID.
+output "external_rtb_id" {
+  value = "${aws_route_table.external.id}"
+}
