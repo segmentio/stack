@@ -25,10 +25,10 @@ endif
 
 ifeq (${platform},Darwin)
 install-python-dependencies:
-	sudo -H pip install --upgrade ${pydeps}
+	sudo -H pip3 install --upgrade ${pydeps}
 else
 install-python-dependencies:
-	pip install --upgrade pyyaml boto3
+	pip3 install --upgrade pyyaml boto3
 endif
 
 install-tools: $(tools)
