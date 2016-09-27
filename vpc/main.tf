@@ -128,17 +128,23 @@ resource "aws_route" "internal" {
  * Route associations
  */
 
-resource "aws_route_table_association" "internal" {
-  count          = "${length(compact(split(",", var.internal_subnets)))}"
-  subnet_id      = "${element(aws_subnet.internal.*.id, count.index)}"
-  route_table_id = "${element(aws_route_table.internal.*.id, count.index)}"
-}
+ /**
+  * Route associations removed from vpc sub-sub module. moved to tf-stack\vpc-changes.tf. see CO-854
 
-resource "aws_route_table_association" "external" {
-  count          = "${length(compact(split(",", var.external_subnets)))}"
-  subnet_id      = "${element(aws_subnet.external.*.id, count.index)}"
-  route_table_id = "${aws_route_table.external.id}"
-}
+  *resource "aws_route_table_association" "internal" {
+  *  count          = "${length(compact(split(",", var.internal_subnets)))}"
+  *  subnet_id      = "${element(aws_subnet.internal.*.id, count.index)}"
+  *  route_table_id = "${element(aws_route_table.internal.*.id, count.index)}"
+  *}
+
+  *resource "aws_route_table_association" "external" {
+  *  count          = "${length(compact(split(",", var.external_subnets)))}"
+  *  subnet_id      = "${element(aws_subnet.external.*.id, count.index)}"
+  *  route_table_id = "${aws_route_table.external.id}"
+  *}
+
+*/
+
 
 /**
  * Outputs
