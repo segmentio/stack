@@ -292,3 +292,13 @@ output "vpc_id" {
 output "ecs_cluster_security_group_id" {
   value = "${module.ecs_cluster.security_group_id}"
 }
+
+// Comma separated list of internal route table IDs.
+output "internal_route_tables" {
+  value = "${module.vpc.internal_rtb_id}"
+}
+
+// The external route table ID.
+output "external_route_table" {
+  value = "${module.vpc.external_rtb_id}"
+}
