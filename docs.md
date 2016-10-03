@@ -52,6 +52,8 @@
 | external_elb | Security group for external ELBs. |
 | internal_subnets | Comma separated list of internal subnet IDs. |
 | external_subnets | Comma separated list of external subnet IDs. |
+| internal_route_tables | Comma separated list of internal route table IDs. |
+| external_route_table | The external route table ID. |
 | iam_role | ECS Service IAM role. |
 | log_bucket_id | S3 bucket ID for ELB logs. |
 | domain_name | The internal domain name, e.g "stack.local". |
@@ -572,4 +574,3 @@
 | desired_count | The desired count | `1` | no |
 | memory | The number of MiB of memory to reserve for the container | `512` | no |
 | cpu | The number of cpu units to reserve for the container | `512` | no |
-
