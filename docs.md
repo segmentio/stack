@@ -53,7 +53,7 @@
 | internal_subnets | Comma separated list of internal subnet IDs. |
 | external_subnets | Comma separated list of external subnet IDs. |
 | internal_route_tables | Comma separated list of internal route table IDs. |
-| external_route_table | The external route table ID. |
+| external_route_tables | The external route table ID. |
 | iam_role | ECS Service IAM role. |
 | log_bucket_id | S3 bucket ID for ELB logs. |
 | domain_name | The internal domain name, e.g "stack.local". |

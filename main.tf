@@ -299,6 +299,6 @@ output "internal_route_tables" {
 }
 
 // The external route table ID.
-output "external_route_table" {
+output "external_route_tables" {
   value = "${module.vpc.external_rtb_id}"
 }
