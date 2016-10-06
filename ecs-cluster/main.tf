@@ -114,6 +114,16 @@ variable "docker_auth_data" {
   default     = ""
 }
 
+variable "extra_cloud_config_type" {
+  description = "Extra cloud config type"
+  default     = "text/x-shellscript"
+}
+
+variable "extra_cloud_config_content" {
+  description = "Extra cloud config content"
+  default     = ""
+}
+
 resource "aws_security_group" "cluster" {
   name        = "${var.name}-ecs-cluster"
   vpc_id      = "${var.vpc_id}"
@@ -151,7 +161,7 @@ resource "aws_ecs_cluster" "main" {
   }
 }
 
-resource "template_file" "cloud_config" {
+data "template_file" "ecs_cloud_config" {
   template = "${file("${path.module}/files/cloud-config.yml.tpl")}"
 
   vars {
@@ -164,6 +174,21 @@ resource "template_file" "cloud_config" {
 
   lifecycle {
     create_before_destroy = true
+  }
+}
+
+data "template_cloudinit_config" "cloud_config" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/part-handler"
+    content      = "${data.template_file.ecs_cloud_config.rendered}"
+  }
+
+  part {
+    content_type = "${var.extra_cloud_config_type}"
+    content      = "${var.extra_cloud_config_content}"
   }
 }
 
