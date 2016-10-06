@@ -201,7 +201,7 @@ resource "aws_launch_configuration" "main" {
   iam_instance_profile        = "${var.iam_instance_profile}"
   key_name                    = "${var.key_name}"
   security_groups             = ["${aws_security_group.cluster.id}"]
-  user_data                   = "${template_file.cloud_config.rendered}"
+  user_data                   = "${template_cloudinit_config.cloud_config.rendered}"
   associate_public_ip_address = "${var.associate_public_ip_address}"
 
   # root
