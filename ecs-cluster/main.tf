@@ -174,8 +174,8 @@ data "template_file" "ecs_cloud_config" {
 }
 
 data "template_cloudinit_config" "cloud_config" {
-  gzip          = true
-  base64_encode = true
+  gzip          = false
+  base64_encode = false
 
   part {
     content_type = "text/part-handler"
