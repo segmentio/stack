@@ -161,7 +161,7 @@ resource "aws_ecs_cluster" "main" {
   }
 }
 
-resource "template_file" "ecs_cloud_config" {
+data "template_file" "ecs_cloud_config" {
   template = "${file("${path.module}/files/cloud-config.yml.tpl")}"
 
   vars {
@@ -171,28 +171,20 @@ resource "template_file" "ecs_cloud_config" {
     docker_auth_type = "${var.docker_auth_type}"
     docker_auth_data = "${var.docker_auth_data}"
   }
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
-resource "template_cloudinit_config" "cloud_config" {
+data "template_cloudinit_config" "cloud_config" {
   gzip          = true
   base64_encode = true
 
   part {
     content_type = "text/part-handler"
-    content      = "${template_file.ecs_cloud_config.rendered}"
+    content      = "${data.template_file.ecs_cloud_config.rendered}"
   }
 
   part {
     content_type = "${var.extra_cloud_config_type}"
     content      = "${var.extra_cloud_config_content}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
   }
 }
 
@@ -205,7 +197,7 @@ resource "aws_launch_configuration" "main" {
   iam_instance_profile        = "${var.iam_instance_profile}"
   key_name                    = "${var.key_name}"
   security_groups             = ["${aws_security_group.cluster.id}"]
-  user_data                   = "${template_cloudinit_config.cloud_config.rendered}"
+  user_data                   = "${data.template_cloudinit_config.cloud_config.rendered}"
   associate_public_ip_address = "${var.associate_public_ip_address}"
 
   # root
