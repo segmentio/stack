@@ -24,7 +24,7 @@ resource "aws_s3_bucket" "logs" {
     Environment = "${var.environment}"
   }
 
-  policy = "${template_file.policy.rendered}"
+  policy = "${data.template_file.policy.rendered}"
 }
 
 output "id" {
