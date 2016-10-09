@@ -131,7 +131,7 @@ variable "ecs_ami" {
 
 variable "extra_cloud_config_type" {
   description = "Extra cloud config type"
-  default     = "text/x-shellscript"
+  default     = "text/cloud-config"
 }
 
 variable "extra_cloud_config_content" {
