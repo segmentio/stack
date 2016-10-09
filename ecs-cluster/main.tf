@@ -116,7 +116,7 @@ variable "docker_auth_data" {
 
 variable "extra_cloud_config_type" {
   description = "Extra cloud config type"
-  default     = "text/x-shellscript"
+  default     = "text/cloud-config"
 }
 
 variable "extra_cloud_config_content" {
@@ -178,7 +178,7 @@ data "template_cloudinit_config" "cloud_config" {
   base64_encode = false
 
   part {
-    content_type = "text/part-handler"
+    content_type = "text/cloud-config"
     content      = "${data.template_file.ecs_cloud_config.rendered}"
   }
 
