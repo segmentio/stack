@@ -153,7 +153,7 @@ resource "aws_ecs_cluster" "main" {
   }
 }
 
-resource "template_file" "cloud_config" {
+data "template_file" "cloud_config" {
   template = "${file("${path.module}/files/cloud-config.yml.tpl")}"
 
   vars {

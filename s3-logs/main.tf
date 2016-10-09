@@ -7,7 +7,7 @@ variable "environment" {
 variable "account_id" {
 }
 
-resource "template_file" "policy" {
+data "template_file" "policy" {
   template = "${file("${path.module}/policy.json")}"
 
   vars = {
