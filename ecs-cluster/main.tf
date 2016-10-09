@@ -163,10 +163,6 @@ data "template_file" "cloud_config" {
     docker_auth_type = "${var.docker_auth_type}"
     docker_auth_data = "${var.docker_auth_data}"
   }
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 resource "aws_launch_configuration" "main" {
