@@ -265,6 +265,7 @@ output "iam_role" {
   value = "${module.iam_role.arn}"
 }
 
+// ECS Default ECS role ID. Useful if you want to add a new policy to that role.
 output "iam_role_default_ecs_role_id" {
   value = "${module.iam_role.default_ecs_role_id}"
 }
