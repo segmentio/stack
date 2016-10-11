@@ -203,7 +203,7 @@ module "ecs_cluster" {
   docker_volume_size     = "${var.ecs_docker_volume_size}"
   docker_auth_type       = "${var.ecs_docker_auth_type}"
   docker_auth_data       = "${var.ecs_docker_auth_data}"
-  security_groups        = "${coalesce(var.ecs_security_groups, format("%s,%s,%s", module.security_groups.internal_ssh, module.security_groups.internal_elb, module.security_groups.external_elb))}"
+  security_groups        = "${join(",", ["format("%s,%s,%s", module.security_groups.internal_ssh, module.security_groups.internal_elb, module.security_groups.external_elb), "${var.ecs_security_groups}"])}"
 }
 
 module "s3_logs" {
