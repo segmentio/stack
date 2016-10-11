@@ -124,6 +124,11 @@ variable "ecs_security_groups" {
   default     = ""
 }
 
+variable "ecs_extra_security_groups" {
+  description = "A comma separated list of security groups added to the default security groups of the stack"
+  default     = ""
+}
+
 variable "ecs_ami" {
   description = "The AMI that will be used to launch EC2 instances in the ECS cluster"
   default     = ""
@@ -203,7 +208,7 @@ module "ecs_cluster" {
   docker_volume_size     = "${var.ecs_docker_volume_size}"
   docker_auth_type       = "${var.ecs_docker_auth_type}"
   docker_auth_data       = "${var.ecs_docker_auth_data}"
-  security_groups        = "${join(",", "${format("%s,%s,%s", module.security_groups.internal_ssh, module.security_groups.internal_elb, module.security_groups.external_elb)}", "var.ecs_security_groups")}"
+  security_groups        = "${coalesce(var.ecs_security_groups, join(",", compact(concat(split(",", "${format("%s,%s,%s", module.security_groups.internal_ssh, module.security_groups.internal_elb, module.security_groups.external_elb)}"), split(",", "${var.ecs_extra_security_groups}")))))}"
 }
 
 module "s3_logs" {
