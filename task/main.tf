@@ -47,6 +47,11 @@ variable "entry_point" {
   default     = "[]"
 }
 
+variable "mount_points" {
+  description = "The docker container mount points"
+  default     = "[]"
+}
+
 variable "ports" {
   description = "The docker container ports"
   default     = "[]"
@@ -88,7 +93,7 @@ resource "aws_ecs_task_definition" "main" {
     "name": "${var.name}",
     "portMappings": ${var.ports},
     "entryPoint": ${var.entry_point},
-    "mountPoints": [],
+    "mountPoints": ${var.mount_points},
     "logConfiguration": {
       "logDriver": "journald",
       "options": {
