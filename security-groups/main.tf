@@ -50,7 +50,7 @@ resource "aws_security_group" "internal_elb" {
 resource "aws_security_group" "external_elb" {
   name        = "${format("%s-%s-external-elb", var.name, var.environment)}"
   vpc_id      = "${var.vpc_id}"
-  description = "Allows internal ELB traffic"
+  description = "Allows external ELB traffic"
 
   ingress {
     from_port   = 80

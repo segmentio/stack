@@ -46,18 +46,18 @@ variable "cidr" {
 }
 
 variable "internal_subnets" {
-  description = "a comma-separated list of CIDRs for internal subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones"
-  default     = "10.30.0.0/19,10.30.64.0/19,10.30.128.0/19"
+  description = "a list of CIDRs for internal subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones"
+  default     = ["10.30.0.0/19" ,"10.30.64.0/19", "10.30.128.0/19"]
 }
 
 variable "external_subnets" {
-  description = "a comma-separated list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones"
-  default     = "10.30.32.0/20,10.30.96.0/20,10.30.160.0/20"
+  description = "a list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones"
+  default     = ["10.30.32.0/20", "10.30.96.0/20", "10.30.160.0/20"]
 }
 
 variable "availability_zones" {
   description = "a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well"
-  default     = "us-west-2a,us-west-2b,us-west-2c"
+  default     = ["us-west-2a", "us-west-2b", "us-west-2c"]
 }
 
 variable "bastion_instance_type" {
@@ -76,7 +76,7 @@ variable "ecs_instance_type" {
 }
 
 variable "ecs_instance_ebs_optimized" {
-  description = "ebs optimize or not cluster instances"
+  description = "use EBS - not all instance types support EBS"
   default     = true
 }
 
@@ -159,7 +159,7 @@ module "bastion" {
   instance_type   = "${var.bastion_instance_type}"
   security_groups = "${module.security_groups.external_ssh},${module.security_groups.internal_ssh}"
   vpc_id          = "${module.vpc.id}"
-  subnet_id       = "${element(split(",",module.vpc.external_subnets), 0)}"
+  subnet_id       = "${element(module.vpc.external_subnets, 0)}"
   key_name        = "${var.key_name}"
   environment     = "${var.environment}"
 }
@@ -291,4 +291,14 @@ output "vpc_id" {
 // The default ECS cluster security group ID.
 output "ecs_cluster_security_group_id" {
   value = "${module.ecs_cluster.security_group_id}"
+}
+
+// Comma separated list of internal route table IDs.
+output "internal_route_tables" {
+  value = "${module.vpc.internal_rtb_id}"
+}
+
+// The external route table ID.
+output "external_route_tables" {
+  value = "${module.vpc.external_rtb_id}"
 }

@@ -15,15 +15,18 @@ variable "zone_id" {
 }
 
 variable "security_groups" {
-  description = "A comma-separated list of security group IDs"
+  description = "A list of security group IDs"
+  type = "list"
 }
 
 variable "subnet_ids" {
-  description = "A comma-separated list of subnet IDs"
+  description = "A list of subnet IDs"
+  type = "list"
 }
 
 variable "availability_zones" {
-  description = "A comma-separated list of availability zones"
+  description = "A list of availability zones"
+  type = "list"
 }
 
 variable "database_name" {
@@ -82,7 +85,7 @@ resource "aws_security_group" "main" {
     from_port       = "${var.port}"
     to_port         = "${var.port}"
     protocol        = "TCP"
-    security_groups = ["${split(",", var.security_groups)}"]
+    security_groups = ["${var.security_groups}"]
   }
 
   egress {
@@ -101,7 +104,7 @@ resource "aws_security_group" "main" {
 resource "aws_db_subnet_group" "main" {
   name        = "${var.name}"
   description = "RDS cluster subnet group"
-  subnet_ids  = ["${split(",", var.subnet_ids)}"]
+  subnet_ids  = ["${var.subnet_ids}"]
 }
 
 resource "aws_rds_cluster_instance" "cluster_instances" {
@@ -114,7 +117,7 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
 
 resource "aws_rds_cluster" "main" {
   cluster_identifier      = "${var.name}"
-  availability_zones      = ["${split(",", var.availability_zones)}"]
+  availability_zones      = ["${var.availability_zones}"]
   database_name           = "${var.database_name}"
   master_username         = "${var.master_username}"
   master_password         = "${var.master_password}"
