@@ -252,6 +252,11 @@ class Template(object):
             content = BEGIN_SCRIPT,
         )
 
+        self.test = Script(
+            name = 'pack-test.sh',
+            content = TEST_SCRIPT,
+        )
+        
         self.end = Script(
             name    = 'pack-end.sh',
             content = END_SCRIPT,
@@ -314,16 +319,23 @@ class Template(object):
         p1 = { 'type': 'shell', 'scripts': self.scripts() }
         ex = self.execute_command()
 
+        p2 = {
+            'type'        : 'file',
+            'source'      : 'tests',
+            'destination' : '/tmp',
+        }
+
         if ex is not None:
             p1['execute_command'] = ex
 
-        return [p0, p1]
+        return [p0, p1, p2]
 
     def scripts(self):
         scripts = [ ]
         scripts.append(self.begin.name)
         for s in self._scripts:
             scripts.append('scripts/' + s)
+        scripts.append(self.test.name)
         scripts.append(self.end.name)
         return scripts
 
@@ -369,10 +381,10 @@ class Template(object):
              open(os.path.join(pwd, 'stdout.log'), 'wb') as stdout, \
              open(os.path.join(pwd, 'stderr.log'), 'wb') as stderr:
 
-            for d in ('root', 'scripts'):
+            for d in ('root', 'scripts', 'tests'):
                 shutil.copytree(os.path.join(templates_dir, self.name, d), os.path.join(pwd, d))
 
-            for s in (self.begin, self.end):
+            for s in (self.begin, self.test, self.end):
                 with open(os.path.join(pwd, s.name), 'w') as f:
                     f.write(s.content)
 
@@ -441,6 +453,14 @@ then
 fi
 
 systemctl daemon-reload
+"""
+
+TEST_SCRIPT = """#!/bin/bash
+
+sudo gem install bundler --no-ri --no-rdoc
+cd /tmp/tests
+bundle install --path=vendor
+bundle exec rake spec
 """
 
 END_SCRIPT = """#!/bin/bash
