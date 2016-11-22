@@ -183,6 +183,6 @@ output "external_rtb_id" {
 }
 
 // The list of EIPs associated with the internal subnets.
-output "external_nat_ips" {
+output "internal_nat_ips" {
   value = ["${aws_eip.nat.*.public_ip}"]
 }
