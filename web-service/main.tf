@@ -120,16 +120,28 @@ variable "cpu" {
   default     = 512
 }
 
+variable "deployment_minimum_healthy_percent" {
+  description = "lower limit (% of desired_count) of # of running tasks during a deployment"
+  default     = 100
+}
+
+variable "deployment_maximum_percent" {
+  description = "upper limit (% of desired_count) of # of running tasks during a deployment"
+  default     = 200
+}
+
 /**
  * Resources.
  */
 
 resource "aws_ecs_service" "main" {
-  name            = "${module.task.name}"
-  cluster         = "${var.cluster}"
-  task_definition = "${module.task.arn}"
-  desired_count   = "${var.desired_count}"
-  iam_role        = "${var.iam_role}"
+  name                               = "${module.task.name}"
+  cluster                            = "${var.cluster}"
+  task_definition                    = "${module.task.arn}"
+  desired_count                      = "${var.desired_count}"
+  iam_role                           = "${var.iam_role}"
+  deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
+  deployment_maximum_percent         = "${var.deployment_maximum_percent}"
 
   load_balancer {
     elb_name       = "${module.elb.id}"
