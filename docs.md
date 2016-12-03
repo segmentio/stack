@@ -489,6 +489,7 @@
 | availability_zones | The list of availability zones of the VPC. |
 | internal_rtb_id | The internal route table ID. |
 | external_rtb_id | The external route table ID. |
+| external_nat_ips | A comma-separated list of internal NAT Gateways IPs. |
 
 # web-service
 
