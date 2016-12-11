@@ -26,11 +26,13 @@
 | domain_name_servers | the internal DNS servers, defaults to the internal route53 server of the VPC | `""` | no |
 | region | the AWS region in which resources are created, you must set the availability_zones variable as well if you define this value to something other than the default | `"us-west-2"` | no |
 | cidr | the CIDR block to provision for the VPC, if set to something other than the default, both internal_subnets and external_subnets have to be defined as well | `"10.30.0.0/16"` | no |
-| internal_subnets | a comma-separated list of CIDRs for internal subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | `"10.30.0.0/19,10.30.64.0/19,10.30.128.0/19"` | no |
-| external_subnets | a comma-separated list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | `"10.30.32.0/20,10.30.96.0/20,10.30.160.0/20"` | no |
-| availability_zones | a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well | `"us-west-2a,us-west-2b,us-west-2c"` | no |
+| internal_subnets | a list of CIDRs for internal subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | - | yes |
+| external_subnets | a list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | - | yes |
+| availability_zones | a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well | - | yes |
+| bastion_instance_type | Instance type for the bastion | `"t2.micro"` | no |
+| ecs_cluster_name | the name of the cluster, if not specified the variable name will be used | `""` | no |
 | ecs_instance_type | the instance type to use for your default ecs cluster | `"m4.large"` | no |
-| ecs_instance_ebs_optimized | use EBS - not all instance types support EBS | `"true"` | no |
+| ecs_instance_ebs_optimized | use EBS - not all instance types support EBS | `true` | no |
 | ecs_min_size | the minimum number of instances to use in the default ecs cluster | `3` | no |
 | ecs_max_size | the maximum number of instances to use in the default ecs cluster | `100` | no |
 | ecs_desired_capacity | the desired number of instances to use in the default ecs cluster | `3` | no |
@@ -52,8 +54,6 @@
 | external_elb | Security group for external ELBs. |
 | internal_subnets | Comma separated list of internal subnet IDs. |
 | external_subnets | Comma separated list of external subnet IDs. |
-| internal_route_tables | Comma separated list of internal route table IDs. |
-| external_route_tables | The external route table ID. |
 | iam_role | ECS Service IAM role. |
 | log_bucket_id | S3 bucket ID for ELB logs. |
 | domain_name | The internal domain name, e.g "stack.local". |
@@ -63,6 +63,8 @@
 | vpc_security_group | The VPC security group ID. |
 | vpc_id | The VPC ID. |
 | ecs_cluster_security_group_id | The default ECS cluster security group ID. |
+| internal_route_tables | Comma separated list of internal route table IDs. |
+| external_route_tables | The external route table ID. |
 
 # bastion
 
@@ -129,8 +131,8 @@
 |------|-------------|:-----:|:-----:|
 | region | The AWS region | - | yes |
 | cidr | The CIDR block to provision for the VPC | - | yes |
-| default_ecs_ami |  | - | yes |
-| default_log_account_ids |  | - | yes |
+| default_ecs_ami |  | `<map>` | no |
+| default_log_account_ids |  | `<map>` | no |
 
 ## Outputs
 
@@ -199,12 +201,12 @@
         name                 = "cdn"
         vpc_id               = "vpc-id"
         image_id             = "ami-id"
-        subnet_ids           = "1,2"
+        subnet_ids           = ["1" ,"2"]
         key_name             = "ssh-key"
         security_groups      = "1,2"
         iam_instance_profile = "id"
         region               = "us-west-2"
-        availability_zones   = "a,b"
+        availability_zones   = ["a", "b"]
         instance_type        = "t2.small"
       }
 
@@ -218,12 +220,12 @@
 | environment | Environment tag, e.g prod | - | yes |
 | vpc_id | VPC ID | - | yes |
 | image_id | AMI Image ID | - | yes |
-| subnet_ids | Comma separated list of subnet IDs | - | yes |
+| subnet_ids | List of subnet IDs | - | yes |
 | key_name | SSH key name to use | - | yes |
 | security_groups | Comma separated list of security groups | - | yes |
 | iam_instance_profile | Instance profile ARN to use in the launch configuration | - | yes |
 | region | AWS Region | - | yes |
-| availability_zones | Comma separated list of AZs | - | yes |
+| availability_zones | List of AZs | - | yes |
 | instance_type | The instance type to use, e.g t2.small | - | yes |
 | instance_ebs_optimized | When set to true the instance will be launched with EBS optimized turned on | `true` | no |
 | min_size | Minimum instance count | `3` | no |
@@ -315,9 +317,9 @@
 | environment | The environment tag, e.g prod | - | yes |
 | vpc_id | The VPC ID to use | - | yes |
 | zone_id | The Route53 Zone ID where the DNS record will be created | - | yes |
-| security_groups | A comma-separated list of security group IDs | - | yes |
-| subnet_ids | A comma-separated list of subnet IDs | - | yes |
-| availability_zones | A comma-separated list of availability zones | - | yes |
+| security_groups | A list of security group IDs | - | yes |
+| subnet_ids | A list of subnet IDs | - | yes |
+| availability_zones | A list of availability zones | - | yes |
 | database_name | The database name | - | yes |
 | master_username | The master user username | - | yes |
 | master_password | The master user password | - | yes |
@@ -418,6 +420,8 @@
 | protocol | The ELB protocol, HTTP or TCP | `"HTTP"` | no |
 | iam_role | IAM Role ARN to use | - | yes |
 | zone_id | The zone ID to create the record in | - | yes |
+| deployment_minimum_healthy_percent | lower limit (% of desired_count) of # of running tasks during a deployment | `100` | no |
+| deployment_maximum_percent | upper limit (% of desired_count) of # of running tasks during a deployment | `200` | no |
 
 ## Outputs
 
@@ -472,10 +476,10 @@
 | Name | Description | Default | Required |
 |------|-------------|:-----:|:-----:|
 | cidr | The CIDR block for the VPC. | - | yes |
-| external_subnets | Comma separated list of subnets | - | yes |
-| internal_subnets | Comma separated list of subnets | - | yes |
+| external_subnets | List of external subnets | - | yes |
+| internal_subnets | List of internal subnets | - | yes |
 | environment | Environment tag, e.g prod | - | yes |
-| availability_zones | Comma separated list of availability zones | - | yes |
+| availability_zones | List of availability zones | - | yes |
 | name | Name tag, e.g stack | `"stack"` | no |
 
 ## Outputs
@@ -484,11 +488,12 @@
 |------|-------------|
 | id | The VPC ID |
 | external_subnets | A comma-separated list of subnet IDs. |
-| internal_subnets | A comma-separated list of subnet IDs. |
+| internal_subnets | A list of subnet IDs. |
 | security_group | The default VPC security group ID. |
 | availability_zones | The list of availability zones of the VPC. |
 | internal_rtb_id | The internal route table ID. |
 | external_rtb_id | The external route table ID. |
+| external_nat_ips | A comma-separated list of internal NAT Gateways IPs. |
 
 # web-service
 
@@ -532,6 +537,8 @@
 | desired_count | The desired count | `2` | no |
 | memory | The number of MiB of memory to reserve for the container | `512` | no |
 | cpu | The number of cpu units to reserve for the container | `512` | no |
+| deployment_minimum_healthy_percent | lower limit (% of desired_count) of # of running tasks during a deployment | `100` | no |
+| deployment_maximum_percent | upper limit (% of desired_count) of # of running tasks during a deployment | `200` | no |
 
 ## Outputs
 
@@ -574,3 +581,6 @@
 | desired_count | The desired count | `1` | no |
 | memory | The number of MiB of memory to reserve for the container | `512` | no |
 | cpu | The number of cpu units to reserve for the container | `512` | no |
+| deployment_minimum_healthy_percent | lower limit (% of desired_count) of # of running tasks during a deployment | `100` | no |
+| deployment_maximum_percent | upper limit (% of desired_count) of # of running tasks during a deployment | `200` | no |
+
