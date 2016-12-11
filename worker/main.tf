@@ -68,15 +68,27 @@ variable "cpu" {
   default     = 512
 }
 
+variable "deployment_minimum_healthy_percent" {
+  description = "lower limit (% of desired_count) of # of running tasks during a deployment"
+  default     = 100
+}
+
+variable "deployment_maximum_percent" {
+  description = "upper limit (% of desired_count) of # of running tasks during a deployment"
+  default     = 200
+}
+
 /**
  * Resources.
  */
 
 resource "aws_ecs_service" "main" {
-  name            = "${module.task.name}"
-  cluster         = "${var.cluster}"
-  task_definition = "${module.task.arn}"
-  desired_count   = "${var.desired_count}"
+  name                               = "${module.task.name}"
+  cluster                            = "${var.cluster}"
+  task_definition                    = "${module.task.arn}"
+  desired_count                      = "${var.desired_count}"
+  deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
+  deployment_maximum_percent         = "${var.deployment_maximum_percent}"
 
   lifecycle {
     create_before_destroy = true
