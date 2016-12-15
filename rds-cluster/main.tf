@@ -111,6 +111,7 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
   count                = "${var.instance_count}"
   db_subnet_group_name = "${aws_db_subnet_group.main.id}"
   cluster_identifier   = "${aws_rds_cluster.main.id}"
+  identifier           = "${aws_rds_cluster.main.id}-instance${count.index}"
   publicly_accessible  = "${var.publicly_accessible}"
   instance_class       = "${var.instance_type}"
 }
