@@ -25,7 +25,7 @@ resource "template_file" "aws_iam_role" {
       "Action": "sts:AssumeRole",
       "Principal": {
         "Service": [
-          ${ecs_role_services}
+          $${ecs_role_services}
         ]
       },
       "Effect": "Allow"
@@ -78,7 +78,7 @@ resource "template_file" "aws_iam_role_policy" {
     {
       "Effect": "Allow",
       "Action": [
-        ${allow_actions}
+        $${allow_actions}
       ],
       "Resource": "*"
     },
