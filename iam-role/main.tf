@@ -6,10 +6,18 @@ variable "environment" {
   description = "The name of the environment for this stack"
 }
 
-resource "aws_iam_role" "default_ecs_role" {
-  name = "ecs-role-${var.name}-${var.environment}"
+variable "ecs_role_services" {
+  description = ""
+  default     = "\"ec2.amazonaws.com\""
+}
 
-  assume_role_policy = <<EOF
+variable "aws_iam_role_policy_allow" {
+  description = ""
+  default     = "\"autoscaling:*\",\"cloudwatch:*\""
+}
+
+resource "template_file" "aws_iam_role" {
+  template = <<EOF
 {
   "Version": "2008-10-17",
   "Statement": [
@@ -17,8 +25,7 @@ resource "aws_iam_role" "default_ecs_role" {
       "Action": "sts:AssumeRole",
       "Principal": {
         "Service": [
-          "ecs.amazonaws.com",
-          "ec2.amazonaws.com"
+          ${ecs_role_services}
         ]
       },
       "Effect": "Allow"
@@ -26,10 +33,19 @@ resource "aws_iam_role" "default_ecs_role" {
   ]
 }
 EOF
+
+  vars {
+    ecs_role_services = "${var.ecs_role_services}"
+  }
+}
+
+resource "aws_iam_role" "default_ecs_role" {
+  name               = "ecsrole-${var.name}-${var.environment}"
+  assume_role_policy = "${template_file.aws_iam_role.rendered}"
 }
 
 resource "aws_iam_role_policy" "default_ecs_service_role_policy" {
-  name = "ecs-service-role-policy-${var.name}-${var.environment}"
+  name = "ecs-servicerole-policy-${var.name}-${var.environment}"
   role = "${aws_iam_role.default_ecs_role.id}"
 
   policy = <<EOF
@@ -41,9 +57,11 @@ resource "aws_iam_role_policy" "default_ecs_service_role_policy" {
       "Action": [
         "ec2:AuthorizeSecurityGroupIngress",
         "ec2:Describe*",
+        "s3:*",
         "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
         "elasticloadbalancing:Describe*",
-        "elasticloadbalancing:RegisterInstancesWithLoadBalancer"
+        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+        "cloudwatch:*"
       ],
       "Resource": "*"
     }
@@ -52,30 +70,15 @@ resource "aws_iam_role_policy" "default_ecs_service_role_policy" {
 EOF
 }
 
-resource "aws_iam_role_policy" "default_ecs_instance_role_policy" {
-  name = "ecs-instance-role-policy-${var.name}-${var.environment}"
-  role = "${aws_iam_role.default_ecs_role.id}"
-
-  policy = <<EOF
+resource "template_file" "aws_iam_role_policy" {
+  template = <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
     {
       "Effect": "Allow",
       "Action": [
-        "ecs:CreateCluster",
-        "ecs:DeregisterContainerInstance",
-        "ecs:DiscoverPollEndpoint",
-        "ecs:Poll",
-        "ecs:RegisterContainerInstance",
-        "ecs:StartTelemetrySession",
-        "ecs:Submit*",
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-        "ecs:StartTask",
-        "autoscaling:*"
+        ${allow_actions}
       ],
       "Resource": "*"
     },
@@ -85,23 +88,31 @@ resource "aws_iam_role_policy" "default_ecs_instance_role_policy" {
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents",
-        "logs:DescribeLogStreams"
+        "logs:DescribeLogStreams",
+        "cloudwatch:*"
       ],
       "Resource": "arn:aws:logs:*:*:*"
     }
   ]
 }
 EOF
+
+  vars {
+    allow_actions = "${var.aws_iam_role_policy_allow}"
+  }
+}
+
+resource "aws_iam_role_policy" "default_ecs_instance_role_policy" {
+  name = "ecs-instancerole-policy-${var.name}-${var.environment}"
+  role = "${aws_iam_role.default_ecs_role.id}"
+
+  policy = "${template_file.aws_iam_role_policy.rendered}"
 }
 
 resource "aws_iam_instance_profile" "default_ecs" {
   name  = "ecs-instance-profile-${var.name}-${var.environment}"
   path  = "/"
   roles = ["${aws_iam_role.default_ecs_role.name}"]
-}
-
-output "default_ecs_role_id" {
-  value = "${aws_iam_role.default_ecs_role.id}"
 }
 
 output "arn" {
@@ -111,3 +122,4 @@ output "arn" {
 output "profile" {
   value = "${aws_iam_instance_profile.default_ecs.id}"
 }
+
