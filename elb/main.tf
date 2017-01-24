@@ -6,30 +6,37 @@
 
 variable "name" {
   description = "ELB name, e.g cdn"
+  type = "string"
 }
 
 variable "subnet_ids" {
-  description = "Comma separated list of subnet IDs"
+  description = "List of subnet IDs"
+  type = "list"
 }
 
 variable "environment" {
   description = "Environment tag, e.g prod"
+  type = "string"
 }
 
 variable "port" {
   description = "Instance port"
+  type = "string"
 }
 
 variable "security_groups" {
-  description = "Comma separated list of security group IDs"
+  description = "List of security group IDs"
+  type = "list"
 }
 
 variable "dns_name" {
   description = "Route53 record name"
+  type = "string"
 }
 
 variable "healthcheck" {
   description = "Healthcheck path"
+  type = "string"
 }
 
 variable "healthcheck_healthy_threshold" {
@@ -54,14 +61,17 @@ variable "healthcheck_interval" {
 
 variable "protocol" {
   description = "Protocol to use, HTTP or TCP"
+  type = "string"
 }
 
 variable "zone_id" {
   description = "Route53 zone ID to use for dns_name"
+  type = "string"
 }
 
 variable "log_bucket" {
   description = "S3 bucket name to write ELB logs into"
+  type = "string"
 }
 
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/config-idle-timeout.html?icmpid=docs_elb_console
@@ -79,8 +89,8 @@ resource "aws_elb" "main" {
 
   internal                  = true
   cross_zone_load_balancing = true
-  subnets                   = ["${split(",", var.subnet_ids)}"]
-  security_groups           = ["${split(",",var.security_groups)}"]
+  subnets                   = ["${var.subnet_ids}"]
+  security_groups           = ["${var.security_groups}"]
 
   idle_timeout                = "${var.idle_timeout}"
   connection_draining         = true

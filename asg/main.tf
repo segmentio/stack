@@ -18,7 +18,8 @@ variable "image_id" {
 }
 
 variable "subnet_ids" {
-  description = "Comma separated list of subnet IDs"
+  description = "list of subnet IDs"
+  type = "list"
 }
 
 variable "key_name" {
@@ -38,7 +39,8 @@ variable "region" {
 }
 
 variable "availability_zones" {
-  description = "Comma separated list of AZs"
+  description = "list of AZs"
+  type = "list"
 }
 
 variable "instance_type" {
@@ -187,8 +189,8 @@ resource "aws_launch_configuration" "main" {
 resource "aws_autoscaling_group" "main" {
   name = "${var.name}"
 
-  availability_zones        = ["${split(",", var.availability_zones)}"]
-  vpc_zone_identifier       = ["${split(",", var.subnet_ids)}"]
+  availability_zones        = ["${var.availability_zones}"]
+  vpc_zone_identifier       = ["${var.subnet_ids}"]
   launch_configuration      = "${aws_launch_configuration.main.id}"
   min_size                  = "${var.min_size}"
   max_size                  = "${var.max_size}"
