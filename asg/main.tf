@@ -151,7 +151,7 @@ resource "aws_security_group" "asg" {
   }
 }
 
-resource "template_file" "instance_config" {
+data "template_file" "instance_config" {
   template = "${file("${path.module}/files/instance-config.yml.tpl")}"
 
   vars {
@@ -168,7 +168,7 @@ resource "aws_launch_configuration" "main" {
   iam_instance_profile        = "${var.iam_instance_profile}"
   key_name                    = "${var.key_name}"
   security_groups             = ["${aws_security_group.asg.id}"]
-  user_data                   = "${template_file.instance_config.rendered}"
+  user_data                   = "${data.template_file.instance_config.rendered}"
   associate_public_ip_address = "${var.associate_public_ip_address}"
 
   # spot_price                  = "0.07"

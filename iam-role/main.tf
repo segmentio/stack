@@ -16,7 +16,7 @@ variable "aws_iam_role_policy_allow" {
   default     = "\"autoscaling:*\",\"cloudwatch:*\""
 }
 
-resource "template_file" "aws_iam_role" {
+data "template_file" "aws_iam_role" {
   template = <<EOF
 {
   "Version": "2008-10-17",
@@ -41,7 +41,7 @@ EOF
 
 resource "aws_iam_role" "default_ecs_role" {
   name               = "ecsrole-${var.name}-${var.environment}"
-  assume_role_policy = "${template_file.aws_iam_role.rendered}"
+  assume_role_policy = "${data.template_file.aws_iam_role.rendered}"
 }
 
 resource "aws_iam_role_policy" "default_ecs_service_role_policy" {
@@ -70,7 +70,7 @@ resource "aws_iam_role_policy" "default_ecs_service_role_policy" {
 EOF
 }
 
-resource "template_file" "aws_iam_role_policy" {
+data "template_file" "aws_iam_role_policy" {
   template = <<EOF
 {
   "Version": "2012-10-17",
@@ -106,7 +106,7 @@ resource "aws_iam_role_policy" "default_ecs_instance_role_policy" {
   name = "ecs-instancerole-policy-${var.name}-${var.environment}"
   role = "${aws_iam_role.default_ecs_role.id}"
 
-  policy = "${template_file.aws_iam_role_policy.rendered}"
+  policy = "${data.template_file.aws_iam_role_policy.rendered}"
 }
 
 resource "aws_iam_instance_profile" "default_ecs" {
