@@ -4,17 +4,17 @@ variable "cidr" {
 }
 
 variable "external_subnets" {
-  description = "list of subnets"
+  description = "List of subnets"
   type = "list"
 }
 
 variable "internal_subnets" {
-  description = "list of subnets"
+  description = "List of subnets"
   type = "list"
 }
 
 variable "availability_zones" {
-  description = "Comma separated list of availability zones"
+  description = "List of availability zones"
   type = "list"
 }
 

@@ -51,7 +51,8 @@ variable "key_name" {
 }
 
 variable "security_groups" {
-  description = "Comma separated list of security groups"
+  description = "List of security groups"
+  type = "list"
 }
 
 variable "iam_instance_profile" {
@@ -135,7 +136,7 @@ resource "aws_security_group" "cluster" {
     from_port       = 0
     to_port         = 0
     protocol        = -1
-    security_groups = ["${split(",", var.security_groups)}"]
+    security_groups = ["${var.security_groups}"]
   }
 
   egress {

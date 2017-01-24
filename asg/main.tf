@@ -3,18 +3,22 @@
 
 variable "name" {
   description = "The cluster name, e.g cdn"
+  type = "string"
 }
 
 variable "environment" {
   description = "Environment tag, e.g prod"
+  type = "string"
 }
 
 variable "vpc_id" {
   description = "VPC ID"
+  type = "string"
 }
 
 variable "image_id" {
   description = "AMI Image ID"
+  type = "string"
 }
 
 variable "subnet_ids" {
@@ -24,18 +28,22 @@ variable "subnet_ids" {
 
 variable "key_name" {
   description = "SSH key name to use"
+  type = "string"
 }
 
 variable "ingress_cidr" {
   description = "Comma separated list of ingress cidrs"
+  type = "string"
 }
 
 variable "iam_instance_profile" {
   description = "Instance profile ARN to use in the launch configuration"
+  type = "string"
 }
 
 variable "region" {
   description = "AWS Region"
+  type = "string"
 }
 
 variable "availability_zones" {
@@ -45,6 +53,7 @@ variable "availability_zones" {
 
 variable "instance_type" {
   description = "The instance type to use, e.g t2.small"
+  type = "string"
 }
 
 variable "instance_ebs_optimized" {
@@ -74,10 +83,12 @@ variable "associate_public_ip_address" {
 
 variable "ebs_device_name" {
   default = "/dev/sdh"
+  type = "string"
 }
 
 variable "ebs_volume_type" {
   default = "standard"
+  type = "string"
 }
 
 variable "ebs_volume_size" {
@@ -86,6 +97,7 @@ variable "ebs_volume_size" {
 
 variable "ebs_snapshot_id" {
   default = ""
+  type = "string"
 }
 
 variable "ebs_delete_on_termination" {
@@ -95,6 +107,7 @@ variable "ebs_delete_on_termination" {
 variable "custom_script" {
   description = "Custom instance bootupt script"
   default     = ""
+  type = "string"
 }
 
 variable "load_balancers" {

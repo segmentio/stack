@@ -36,11 +36,13 @@ variable "version" {
 }
 
 variable "subnet_ids" {
-  description = "Comma separated list of subnet IDs that will be passed to the ELB module"
+  description = "List of subnet IDs that will be passed to the ELB module"
+  type = "list"
 }
 
 variable "security_groups" {
-  description = "Comma separated list of security group IDs that will be passed to the ELB module"
+  description = "List of security group IDs that will be passed to the ELB module"
+  type = "list"
 }
 
 variable "port" {
