@@ -117,11 +117,6 @@ resource "aws_route_table" "internal" {
   count  = "${length(compact(var.internal_subnets))}"
   vpc_id = "${aws_vpc.main.id}"
 
-  # route {
-  #   cidr_block     = "0.0.0.0/0"
-  #   nat_gateway_id = "${element(aws_nat_gateway.main.*.id, count.index)}"
-  # }
-
   tags {
     Name = "${var.name}-${format("internal-%03d", count.index+1)}"
   }
