@@ -81,29 +81,6 @@ variable "associate_public_ip_address" {
   default     = false
 }
 
-variable "ebs_device_name" {
-  default = "/dev/sdh"
-  type = "string"
-}
-
-variable "ebs_volume_type" {
-  default = "standard"
-  type = "string"
-}
-
-variable "ebs_volume_size" {
-  default = 1
-}
-
-variable "ebs_snapshot_id" {
-  default = ""
-  type = "string"
-}
-
-variable "ebs_delete_on_termination" {
-  default = true
-}
-
 variable "custom_script" {
   description = "Custom instance bootupt script"
   default     = ""
@@ -184,16 +161,6 @@ resource "aws_launch_configuration" "main" {
   user_data                   = "${data.template_file.instance_config.rendered}"
   associate_public_ip_address = "${var.associate_public_ip_address}"
 
-  # spot_price                  = "0.07"
-
-  # root
-  ebs_block_device {
-    device_name           = "${var.ebs_device_name}"
-    volume_type           = "${var.ebs_volume_type}"
-    volume_size           = "${var.ebs_volume_size}"
-    snapshot_id           = "${var.ebs_snapshot_id}"
-    delete_on_termination = "${var.ebs_delete_on_termination}"
-  }
   lifecycle {
     create_before_destroy = true
   }
