@@ -16,17 +16,17 @@ variable "zone_id" {
 
 variable "security_groups" {
   description = "A list of security group IDs"
-  type = "list"
+  type        = "list"
 }
 
 variable "subnet_ids" {
   description = "A list of subnet IDs"
-  type = "list"
+  type        = "list"
 }
 
 variable "availability_zones" {
   description = "A list of availability zones"
-  type = "list"
+  type        = "list"
 }
 
 variable "database_name" {
@@ -76,6 +76,11 @@ variable "port" {
   default     = 3306
 }
 
+variable "skip_final_snapshot" {
+  description = "When set to false deletion will be delayed to take a snapshot from which the database can be recovered"
+  default     = true
+}
+
 resource "aws_security_group" "main" {
   name        = "${var.name}-rds-cluster"
   description = "Allows traffic to rds from other security groups"
@@ -116,16 +121,18 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
 }
 
 resource "aws_rds_cluster" "main" {
-  cluster_identifier      = "${var.name}"
-  availability_zones      = ["${var.availability_zones}"]
-  database_name           = "${var.database_name}"
-  master_username         = "${var.master_username}"
-  master_password         = "${var.master_password}"
-  backup_retention_period = "${var.backup_retention_period}"
-  preferred_backup_window = "${var.preferred_backup_window}"
-  vpc_security_group_ids  = ["${aws_security_group.main.id}"]
-  db_subnet_group_name    = "${aws_db_subnet_group.main.id}"
-  port                    = "${var.port}"
+  cluster_identifier        = "${var.name}"
+  availability_zones        = ["${var.availability_zones}"]
+  database_name             = "${var.database_name}"
+  master_username           = "${var.master_username}"
+  master_password           = "${var.master_password}"
+  backup_retention_period   = "${var.backup_retention_period}"
+  preferred_backup_window   = "${var.preferred_backup_window}"
+  vpc_security_group_ids    = ["${aws_security_group.main.id}"]
+  db_subnet_group_name      = "${aws_db_subnet_group.main.id}"
+  port                      = "${var.port}"
+  skip_final_snapshot       = "${var.skip_final_snapshot}"
+  final_snapshot_identifier = "${var.name}-finalsnapshot"
 }
 
 resource "aws_route53_record" "main" {
