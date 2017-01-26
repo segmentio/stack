@@ -1,17 +1,17 @@
 
 # Stack
 
- The stack module combines sub modules to create a complete
- stack with `vpc`, a default ecs cluster with auto scaling
- and a bastion node that enables you to access all instances.
+The stack module combines sub modules to create a complete
+stack with `vpc`, a default ecs cluster with auto scaling
+and a bastion node that enables you to access all instances.
 
- Usage:
+Usage:
 
-    module "stack" {
-      source      = "github.com/segmentio/stack"
-      name        = "mystack"
-      environment = "prod"
-    }
+   module "stack" {
+     source      = "github.com/segmentio/stack"
+     name        = "mystack"
+     environment = "prod"
+   }
 
 
 
@@ -22,26 +22,28 @@
 | name | the name of your stack, e.g. "segment" | - | yes |
 | environment | the name of your environment, e.g. "prod-west" | - | yes |
 | key_name | the name of the ssh key to use, e.g. "internal-key" | - | yes |
-| domain_name | the internal DNS name to use with services | `"stack.local"` | no |
-| domain_name_servers | the internal DNS servers, defaults to the internal route53 server of the VPC | `""` | no |
-| region | the AWS region in which resources are created, you must set the availability_zones variable as well if you define this value to something other than the default | `"us-west-2"` | no |
-| cidr | the CIDR block to provision for the VPC, if set to something other than the default, both internal_subnets and external_subnets have to be defined as well | `"10.30.0.0/16"` | no |
-| internal_subnets | a list of CIDRs for internal subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | - | yes |
-| external_subnets | a list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | - | yes |
-| availability_zones | a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well | - | yes |
-| bastion_instance_type | Instance type for the bastion | `"t2.micro"` | no |
-| ecs_cluster_name | the name of the cluster, if not specified the variable name will be used | `""` | no |
-| ecs_instance_type | the instance type to use for your default ecs cluster | `"m4.large"` | no |
+| domain_name | the internal DNS name to use with services | `stack.local` | no |
+| domain_name_servers | the internal DNS servers, defaults to the internal route53 server of the VPC | `` | no |
+| region | the AWS region in which resources are created, you must set the availability_zones variable as well if you define this value to something other than the default | `us-west-2` | no |
+| cidr | the CIDR block to provision for the VPC, if set to something other than the default, both internal_subnets and external_subnets have to be defined as well | `10.30.0.0/16` | no |
+| internal_subnets | a list of CIDRs for internal subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | `<list>` | no |
+| external_subnets | a list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | `<list>` | no |
+| availability_zones | a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well | `<list>` | no |
+| bastion_instance_type | Instance type for the bastion | `t2.micro` | no |
+| ecs_cluster_name | the name of the cluster, if not specified the variable name will be used | `` | no |
+| ecs_instance_type | the instance type to use for your default ecs cluster | `m4.large` | no |
 | ecs_instance_ebs_optimized | use EBS - not all instance types support EBS | `true` | no |
 | ecs_min_size | the minimum number of instances to use in the default ecs cluster | `3` | no |
 | ecs_max_size | the maximum number of instances to use in the default ecs cluster | `100` | no |
 | ecs_desired_capacity | the desired number of instances to use in the default ecs cluster | `3` | no |
 | ecs_root_volume_size | the size of the ecs instance root volume | `25` | no |
 | ecs_docker_volume_size | the size of the ecs instance docker volume | `25` | no |
-| ecs_docker_auth_type | The docker auth type, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the possible values | `""` | no |
-| ecs_docker_auth_data | A JSON object providing the docker auth data, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the supported formats | `""` | no |
-| ecs_security_groups | A comma separated list of security groups from which ingest traffic will be allowed on the ECS cluster, it defaults to allowing ingress traffic on port 22 and coming grom the ELBs | `""` | no |
-| ecs_ami | The AMI that will be used to launch EC2 instances in the ECS cluster | `""` | no |
+| ecs_docker_auth_type | The docker auth type, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the possible values | `` | no |
+| ecs_docker_auth_data | A JSON object providing the docker auth data, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the supported formats | `` | no |
+| ecs_security_groups | A comma separated list of security groups from which ingest traffic will be allowed on the ECS cluster, it defaults to allowing ingress traffic on port 22 and coming grom the ELBs | `` | no |
+| ecs_ami | The AMI that will be used to launch EC2 instances in the ECS cluster | `` | no |
+| extra_cloud_config_type | Extra cloud config type | `text/cloud-config` | no |
+| extra_cloud_config_content | Extra cloud config content | `` | no |
 
 ## Outputs
 
@@ -55,6 +57,7 @@
 | internal_subnets | Comma separated list of internal subnet IDs. |
 | external_subnets | Comma separated list of external subnet IDs. |
 | iam_role | ECS Service IAM role. |
+| iam_role_default_ecs_role_id | Default ECS role ID. Useful if you want to add a new policy to that role. |
 | log_bucket_id | S3 bucket ID for ELB logs. |
 | domain_name | The internal domain name, e.g "stack.local". |
 | environment | The environment of the stack, e.g "prod". |
@@ -68,25 +71,25 @@
 
 # bastion
 
- The bastion host acts as the "jump point" for the rest of the infrastructure.
- Since most of our instances aren't exposed to the external internet, the bastion acts as the gatekeeper for any direct SSH access.
- The bastion is provisioned using the key name that you pass to the stack (and hopefully have stored somewhere).
- If you ever need to access an instance directly, you can do it by "jumping through" the bastion.
+The bastion host acts as the "jump point" for the rest of the infrastructure.
+Since most of our instances aren't exposed to the external internet, the bastion acts as the gatekeeper for any direct SSH access.
+The bastion is provisioned using the key name that you pass to the stack (and hopefully have stored somewhere).
+If you ever need to access an instance directly, you can do it by "jumping through" the bastion.
 
-    $ terraform output # print the bastion ip
-    $ ssh -i <path/to/key> ubuntu@<bastion-ip> ssh ubuntu@<internal-ip>
+   $ terraform output # print the bastion ip
+   $ ssh -i <path/to/key> ubuntu@<bastion-ip> ssh ubuntu@<internal-ip>
 
- Usage:
+Usage:
 
-    module "bastion" {
-      source            = "github.com/segmentio/stack/bastion"
-      region            = "us-west-2"
-      security_groups   = "sg-1,sg-2"
-      vpc_id            = "vpc-12"
-      key_name          = "ssh-key"
-      subnet_id         = "pub-1"
-      environment       = "prod"
-    }
+   module "bastion" {
+     source            = "github.com/segmentio/stack/bastion"
+     region            = "us-west-2"
+     security_groups   = "sg-1,sg-2"
+     vpc_id            = "vpc-12"
+     key_name          = "ssh-key"
+     subnet_id         = "pub-1"
+     environment       = "prod"
+   }
 
 
 
@@ -94,7 +97,7 @@
 
 | Name | Description | Default | Required |
 |------|-------------|:-----:|:-----:|
-| instance_type | Instance type, see a list at: https://aws.amazon.com/ec2/instance-types/ | `"t2.micro"` | no |
+| instance_type | Instance type, see a list at: https://aws.amazon.com/ec2/instance-types/ | `t2.micro` | no |
 | region | AWS Region, e.g us-west-2 | - | yes |
 | security_groups | a comma separated lists of security group IDs | - | yes |
 | vpc_id | VPC ID | - | yes |
@@ -110,18 +113,18 @@
 
 # defaults
 
- This module is used to set configuration defaults for the AWS infrastructure.
- It doesn't provide much value when used on its own because terraform makes it
- hard to do dynamic generations of things like subnets, for now it's used as
- a helper module for the stack.
+This module is used to set configuration defaults for the AWS infrastructure.
+It doesn't provide much value when used on its own because terraform makes it
+hard to do dynamic generations of things like subnets, for now it's used as
+a helper module for the stack.
 
- Usage:
+Usage:
 
-     module "defaults" {
-       source = "github.com/segmentio/stack/defaults"
-       region = "us-east-1"
-       cidr   = "10.0.0.0/16"
-     }
+    module "defaults" {
+      source = "github.com/segmentio/stack/defaults"
+      region = "us-east-1"
+      cidr   = "10.0.0.0/16"
+    }
 
 
 
@@ -132,7 +135,7 @@
 | region | The AWS region | - | yes |
 | cidr | The CIDR block to provision for the VPC | - | yes |
 | default_ecs_ami |  | `<map>` | no |
-| default_log_account_ids |  | `<map>` | no |
+| default_log_account_ids | # http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/enable-access-logs.html#attach-bucket-policy | `<map>` | no |
 
 ## Outputs
 
@@ -155,17 +158,17 @@
 
 # dns
 
- The dns module creates a local route53 zone that serves
- as a service discovery utility. For example a service
- resource with the name `auth` and a dns module
- with the name `stack.local`, the service address will be `auth.stack.local`.
+The dns module creates a local route53 zone that serves
+as a service discovery utility. For example a service
+resource with the name `auth` and a dns module
+with the name `stack.local`, the service address will be `auth.stack.local`.
 
- Usage:
+Usage:
 
-    module "dns" {
-      source = "github.com/segment/stack"
-      name   = "stack.local"
-    }
+   module "dns" {
+     source = "github.com/segment/stack"
+     name   = "stack.local"
+   }
 
 
 
@@ -174,7 +177,7 @@
 | Name | Description | Default | Required |
 |------|-------------|:-----:|:-----:|
 | name | Zone name, e.g stack.local | - | yes |
-| vpc_id | The VPC ID (omit to create a public zone) | `""` | no |
+| vpc_id | The VPC ID (omit to create a public zone) | `` | no |
 
 ## Outputs
 
@@ -186,29 +189,29 @@
 
 # ecs-cluster
 
- ECS Cluster creates a cluster with the following features:
+ECS Cluster creates a cluster with the following features:
 
-  - Autoscaling groups
-  - Instance tags for filtering
-  - EBS volume for docker resources
+ - Autoscaling groups
+ - Instance tags for filtering
+ - EBS volume for docker resources
 
 
- Usage:
+Usage:
 
-      module "cdn" {
-        source               = "github.com/segmentio/stack/ecs-cluster"
-        environment          = "prod"
-        name                 = "cdn"
-        vpc_id               = "vpc-id"
-        image_id             = "ami-id"
-        subnet_ids           = ["1" ,"2"]
-        key_name             = "ssh-key"
-        security_groups      = "1,2"
-        iam_instance_profile = "id"
-        region               = "us-west-2"
-        availability_zones   = ["a", "b"]
-        instance_type        = "t2.small"
-      }
+     module "cdn" {
+       source               = "github.com/segmentio/stack/ecs-cluster"
+       environment          = "prod"
+       name                 = "cdn"
+       vpc_id               = "vpc-id"
+       image_id             = "ami-id"
+       subnet_ids           = ["1" ,"2"]
+       key_name             = "ssh-key"
+       security_groups      = "1,2"
+       iam_instance_profile = "id"
+       region               = "us-west-2"
+       availability_zones   = ["a", "b"]
+       instance_type        = "t2.small"
+     }
 
 
 
@@ -234,8 +237,10 @@
 | associate_public_ip_address | Should created instances be publicly accessible (if the SG allows) | `false` | no |
 | root_volume_size | Root volume size in GB | `25` | no |
 | docker_volume_size | Attached EBS volume size in GB | `25` | no |
-| docker_auth_type | The docker auth type, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the possible values | `""` | no |
-| docker_auth_data | A JSON object providing the docker auth data, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the supported formats | `""` | no |
+| docker_auth_type | The docker auth type, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the possible values | `` | no |
+| docker_auth_data | A JSON object providing the docker auth data, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the supported formats | `` | no |
+| extra_cloud_config_type | Extra cloud config type | `text/cloud-config` | no |
+| extra_cloud_config_content | Extra cloud config content | `` | no |
 
 ## Outputs
 
@@ -246,9 +251,9 @@
 
 # elb
 
- The ELB module creates an ELB, security group
- a route53 record and a service healthcheck.
- It is used by the service module.
+The ELB module creates an ELB, security group
+a route53 record and a service healthcheck.
+It is used by the service module.
 
 
 ## Inputs
@@ -278,16 +283,16 @@
 
 # iam-user
 
- The module creates an IAM user.
+The module creates an IAM user.
 
- Usage:
+Usage:
 
-    module "my_user" {
-      name = "user"
-      policy = <<EOF
-      {}
-    EOF
-    }
+   module "my_user" {
+     name = "user"
+     policy = <<EOF
+     {}
+   EOF
+   }
 
 
 
@@ -323,13 +328,14 @@
 | database_name | The database name | - | yes |
 | master_username | The master user username | - | yes |
 | master_password | The master user password | - | yes |
-| instance_type | The type of instances that the RDS cluster will be running on | `"db.r3.large"` | no |
+| instance_type | The type of instances that the RDS cluster will be running on | `db.r3.large` | no |
 | instance_count | How many instances will be provisioned in the RDS cluster | `1` | no |
-| preferred_backup_window | The time window on which backups will be made (HH:mm-HH:mm) | `"07:00-09:00"` | no |
+| preferred_backup_window | The time window on which backups will be made (HH:mm-HH:mm) | `07:00-09:00` | no |
 | backup_retention_period | The backup retention period | `5` | no |
 | publicly_accessible | When set to true the RDS cluster can be reached from outside the VPC | `false` | no |
-| dns_name | Route53 record name for the RDS database, defaults to the database name if not set | `""` | no |
+| dns_name | Route53 record name for the RDS database, defaults to the database name if not set | `` | no |
 | port | The port at which the database listens for incoming connections | `3306` | no |
+| skip_final_snapshot | When set to false deletion will be delayed to take a snapshot from which the database can be recovered | `true` | no |
 
 ## Outputs
 
@@ -359,7 +365,7 @@
 
 # security-groups
 
- Creates basic security groups to be used by instances and ELBs.
+Creates basic security groups to be used by instances and ELBs.
 
 
 ## Inputs
@@ -382,17 +388,17 @@
 
 # service
 
- The service module creates an ecs service, task definition
- elb and a route53 record under the local service zone (see the dns module).
+The service module creates an ecs service, task definition
+elb and a route53 record under the local service zone (see the dns module).
 
- Usage:
+Usage:
 
-      module "auth_service" {
-        source    = "github.com/segmentio/stack/service"
-        name      = "auth-service"
-        image     = "auth-service"
-        cluster   = "default"
-      }
+     module "auth_service" {
+       source    = "github.com/segmentio/stack/service"
+       name      = "auth-service"
+       image     = "auth-service"
+       cluster   = "default"
+     }
 
 
 
@@ -402,22 +408,22 @@
 |------|-------------|:-----:|:-----:|
 | environment | Environment tag, e.g prod | - | yes |
 | image | The docker image name, e.g nginx | - | yes |
-| name | The service name, if empty the service name is defaulted to the image name | `""` | no |
-| version | The docker image version | `"latest"` | no |
+| name | The service name, if empty the service name is defaulted to the image name | `` | no |
+| version | The docker image version | `latest` | no |
 | subnet_ids | Comma separated list of subnet IDs that will be passed to the ELB module | - | yes |
 | security_groups | Comma separated list of security group IDs that will be passed to the ELB module | - | yes |
 | port | The container host port | - | yes |
 | cluster | The cluster name or ARN | - | yes |
 | dns_name | The DNS name to use, e.g nginx | - | yes |
 | log_bucket | The S3 bucket ID to use for the ELB | - | yes |
-| healthcheck | Path to a healthcheck endpoint | `"/"` | no |
+| healthcheck | Path to a healthcheck endpoint | `/` | no |
 | container_port | The container port | `3000` | no |
-| command | The raw json of the task command | `"[]"` | no |
-| env_vars | The raw json of the task env vars | `"[]"` | no |
+| command | The raw json of the task command | `[]` | no |
+| env_vars | The raw json of the task env vars | `[]` | no |
 | desired_count | The desired count | `2` | no |
 | memory | The number of MiB of memory to reserve for the container | `512` | no |
 | cpu | The number of cpu units to reserve for the container | `512` | no |
-| protocol | The ELB protocol, HTTP or TCP | `"HTTP"` | no |
+| protocol | The ELB protocol, HTTP or TCP | `HTTP` | no |
 | iam_role | IAM Role ARN to use | - | yes |
 | zone_id | The zone ID to create the record in | - | yes |
 | deployment_minimum_healthy_percent | lower limit (% of desired_count) of # of running tasks during a deployment | `100` | no |
@@ -435,15 +441,15 @@
 
 # task
 
- The task module creates an ECS task definition.
+The task module creates an ECS task definition.
 
- Usage:
+Usage:
 
-     module "nginx" {
-       source = "github.com/segmentio/stack/task"
-       name   = "nginx"
-       image  = "nginx"
-     }
+    module "nginx" {
+      source = "github.com/segmentio/stack/task"
+      name   = "nginx"
+      image  = "nginx"
+    }
 
 
 
@@ -454,11 +460,11 @@
 | image | The docker image name, e.g nginx | - | yes |
 | name | The worker name, if empty the service name is defaulted to the image name | - | yes |
 | cpu | The number of cpu units to reserve for the container | `512` | no |
-| env_vars | The raw json of the task env vars | `"[]"` | no |
-| command | The raw json of the task command | `"[]"` | no |
-| entry_point | The docker container entry point | `"[]"` | no |
-| ports | The docker container ports | `"[]"` | no |
-| image_version | The docker image version | `"latest"` | no |
+| env_vars | The raw json of the task env vars | `[]` | no |
+| command | The raw json of the task command | `[]` | no |
+| entry_point | The docker container entry point | `[]` | no |
+| ports | The docker container ports | `[]` | no |
+| image_version | The docker image version | `latest` | no |
 | memory | The number of MiB of memory to reserve for the container | `512` | no |
 
 ## Outputs
@@ -480,7 +486,7 @@
 | internal_subnets | List of internal subnets | - | yes |
 | environment | Environment tag, e.g prod | - | yes |
 | availability_zones | List of availability zones | - | yes |
-| name | Name tag, e.g stack | `"stack"` | no |
+| name | Name tag, e.g stack | `stack` | no |
 
 ## Outputs
 
@@ -493,21 +499,21 @@
 | availability_zones | The list of availability zones of the VPC. |
 | internal_rtb_id | The internal route table ID. |
 | external_rtb_id | The external route table ID. |
-| external_nat_ips | A comma-separated list of internal NAT Gateways IPs. |
+| internal_nat_ips | The list of EIPs associated with the internal subnets. |
 
 # web-service
 
- The web-service is similar to the `service` module, but the
- it provides a __public__ ELB instead.
+The web-service is similar to the `service` module, but the
+it provides a __public__ ELB instead.
 
- Usage:
+Usage:
 
-      module "auth_service" {
-        source    = "github.com/segmentio/stack/service"
-        name      = "auth-service"
-        image     = "auth-service"
-        cluster   = "default"
-      }
+     module "auth_service" {
+       source    = "github.com/segmentio/stack/service"
+       name      = "auth-service"
+       image     = "auth-service"
+       cluster   = "default"
+     }
 
 
 
@@ -517,8 +523,8 @@
 |------|-------------|:-----:|:-----:|
 | environment | Environment tag, e.g prod | - | yes |
 | image | The docker image name, e.g nginx | - | yes |
-| name | The service name, if empty the service name is defaulted to the image name | `""` | no |
-| version | The docker image version | `"latest"` | no |
+| name | The service name, if empty the service name is defaulted to the image name | `` | no |
+| version | The docker image version | `latest` | no |
 | subnet_ids | Comma separated list of subnet IDs that will be passed to the ELB module | - | yes |
 | security_groups | Comma separated list of security group IDs that will be passed to the ELB module | - | yes |
 | port | The container host port | - | yes |
@@ -526,14 +532,14 @@
 | log_bucket | The S3 bucket ID to use for the ELB | - | yes |
 | ssl_certificate_id | SSL Certificate ID to use | - | yes |
 | iam_role | IAM Role ARN to use | - | yes |
-| external_dns_name | The subdomain under which the ELB is exposed externally, defaults to the task name | `""` | no |
-| internal_dns_name | The subdomain under which the ELB is exposed internally, defaults to the task name | `""` | no |
+| external_dns_name | The subdomain under which the ELB is exposed externally, defaults to the task name | `` | no |
+| internal_dns_name | The subdomain under which the ELB is exposed internally, defaults to the task name | `` | no |
 | external_zone_id | The zone ID to create the record in | - | yes |
 | internal_zone_id | The zone ID to create the record in | - | yes |
-| healthcheck | Path to a healthcheck endpoint | `"/"` | no |
+| healthcheck | Path to a healthcheck endpoint | `/` | no |
 | container_port | The container port | `3000` | no |
-| command | The raw json of the task command | `"[]"` | no |
-| env_vars | The raw json of the task env vars | `"[]"` | no |
+| command | The raw json of the task command | `[]` | no |
+| env_vars | The raw json of the task env vars | `[]` | no |
 | desired_count | The desired count | `2` | no |
 | memory | The number of MiB of memory to reserve for the container | `512` | no |
 | cpu | The number of cpu units to reserve for the container | `512` | no |
@@ -553,17 +559,17 @@
 
 # worker
 
- The worker module creates an ECS service that has no ELB attached.
+The worker module creates an ECS service that has no ELB attached.
 
- Usage:
+Usage:
 
-     module "my_worker" {
-       source       = "github.com/segmentio/stack"
-       environment  = "prod"
-       name         = "worker"
-       image        = "worker"
-       cluster      = "default"
-     }
+    module "my_worker" {
+      source       = "github.com/segmentio/stack"
+      environment  = "prod"
+      name         = "worker"
+      image        = "worker"
+      cluster      = "default"
+    }
 
 
 
@@ -573,11 +579,11 @@
 |------|-------------|:-----:|:-----:|
 | environment | Environment tag, e.g prod | - | yes |
 | image | The docker image name, e.g nginx | - | yes |
-| name | The worker name, if empty the service name is defaulted to the image name | `""` | no |
-| version | The docker image version | `"latest"` | no |
+| name | The worker name, if empty the service name is defaulted to the image name | `` | no |
+| version | The docker image version | `latest` | no |
 | cluster | The cluster name or ARN | - | yes |
-| command | The raw json of the task command | `"[]"` | no |
-| env_vars | The raw json of the task env vars | `"[]"` | no |
+| command | The raw json of the task command | `[]` | no |
+| env_vars | The raw json of the task env vars | `[]` | no |
 | desired_count | The desired count | `1` | no |
 | memory | The number of MiB of memory to reserve for the container | `512` | no |
 | cpu | The number of cpu units to reserve for the container | `512` | no |
