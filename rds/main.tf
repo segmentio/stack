@@ -106,7 +106,7 @@ resource "aws_db_subnet_group" "main" {
 }
 
 resource "aws_db_instance" "main" {
-  name = "${var.name}"
+  identifier = "${var.name}"
 
   # Database
   engine         = "${var.engine}"
@@ -114,6 +114,7 @@ resource "aws_db_instance" "main" {
   username       = "${var.name}"
   password       = "${var.password}"
   multi_az       = "${var.multi_az}"
+  name           = "${var.name}"
 
   # Backups / maintenance
   backup_retention_period = "${var.backup_retention_period}"
