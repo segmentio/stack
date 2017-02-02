@@ -32,12 +32,12 @@ variable "backup_retention_period" {
 }
 
 variable "backup_window" {
-  description = "Time window for backups. Default is low traffic for Segment."
+  description = "Time window for backups."
   default     = "00:30-01:00"
 }
 
 variable "maintenance_window" {
-  description = "Time window for maintenance. Default is low traffic for Segment."
+  description = "Time window for maintenance."
   default     = "Mon:00:00-Mon:00:30"
 }
 
