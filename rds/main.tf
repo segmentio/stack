@@ -70,9 +70,16 @@ variable "vpc_id" {
   description = "The VPC ID to use"
 }
 
-variable "security_groups" {
-  description = "A list of security group IDs"
+variable "ingress_allow_security_groups" {
+  description = "A list of security group IDs to allow traffic from"
   type        = "list"
+  default     = []
+}
+
+variable "ingress_allow_cidr_blocks" {
+  description = "A list of CIDR blocks to allow traffic from"
+  type        = "list"
+  default     = []
 }
 
 variable "subnet_ids" {
@@ -89,7 +96,14 @@ resource "aws_security_group" "main" {
     from_port       = "${var.port}"
     to_port         = "${var.port}"
     protocol        = "TCP"
-    security_groups = ["${var.security_groups}"]
+    security_groups = ["${var.ingress_allow_security_groups}"]
+  }
+
+  ingress {
+    from_port   = "${var.port}"
+    to_port     = "${var.port}"
+    protocol    = "TCP"
+    cidr_blocks = ["${var.ingress_allow_cidr_blocks}"]
   }
 
   egress {
