@@ -61,6 +61,11 @@ variable "allocated_storage" {
   default     = 10
 }
 
+variable "publicly_accessible" {
+  description = "If true, the RDS instance will be open to the internet"
+  default     = false
+}
+
 variable "vpc_id" {
   description = "The VPC ID to use"
 }
@@ -130,6 +135,7 @@ resource "aws_db_instance" "main" {
   # Network / security
   db_subnet_group_name   = "${aws_db_subnet_group.main.id}"
   vpc_security_group_ids = ["${aws_security_group.main.id}"]
+  publicly_accessible    = "${var.publicly_accessible}"
 }
 
 output "addr" {
