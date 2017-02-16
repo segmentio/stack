@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-modules=$(ls -1 */*.tf | xargs -I % dirname %)
+modules=$(find -mindepth 2 -name *.tf -printf '%P\n' | xargs -I % dirname %)
 
 (terraform validate . && echo "√ stack") || exit 1
 

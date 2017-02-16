@@ -129,6 +129,16 @@ variable "ecs_ami" {
   default     = ""
 }
 
+variable "extra_cloud_config_type" {
+  description = "Extra cloud config type"
+  default     = "text/cloud-config"
+}
+
+variable "extra_cloud_config_content" {
+  description = "Extra cloud config content"
+  default     = ""
+}
+
 module "defaults" {
   source = "./defaults"
   region = "${var.region}"
@@ -204,6 +214,8 @@ module "ecs_cluster" {
   docker_auth_type       = "${var.ecs_docker_auth_type}"
   docker_auth_data       = "${var.ecs_docker_auth_data}"
   security_groups        = "${coalesce(var.ecs_security_groups, format("%s,%s,%s", module.security_groups.internal_ssh, module.security_groups.internal_elb, module.security_groups.external_elb))}"
+  extra_cloud_config_type     = "${var.extra_cloud_config_type}"
+  extra_cloud_config_content  = "${var.extra_cloud_config_content}"
 }
 
 module "s3_logs" {
@@ -251,6 +263,11 @@ output "external_subnets" {
 // ECS Service IAM role.
 output "iam_role" {
   value = "${module.iam_role.arn}"
+}
+
+// Default ECS role ID. Useful if you want to add a new policy to that role.
+output "iam_role_default_ecs_role_id" {
+  value = "${module.iam_role.default_ecs_role_id}"
 }
 
 // S3 bucket ID for ELB logs.
