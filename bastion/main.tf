@@ -51,7 +51,7 @@ variable "environment" {
 }
 
 module "ami" {
-  source        = "git::https://github.com/terraform-community-modules/tf_aws_ubuntu_ami.git?ref=e6614d7ce66a9a59db1787c8f695d70034b865db"
+  source        = "git::https://github.com/terraform-community-modules/tf_aws_ubuntu_ami.git//ebs?ref=e6614d7ce66a9a59db1787c8f695d70034b865db"
   region        = "${var.region}"
   distribution  = "trusty"
   instance_type = "${var.instance_type}"
