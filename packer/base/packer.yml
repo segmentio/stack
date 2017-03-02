@@ -1,7 +1,7 @@
 ---
 # https://www.packer.io/docs/builders/amazon-ebs.html
 ami:
-  source_ami: ami-fa82739a
+  source_ami: ami-d8f4deab
   instance_type: c4.2xlarge
   ssh_username: ubuntu
   ssh_timeout: 10m
