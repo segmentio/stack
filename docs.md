@@ -97,15 +97,15 @@ If you ever need to access an instance directly, you can do it by "jumping throu
 
 Usage:
 
-   module "bastion" {
-     source            = "github.com/segmentio/stack/bastion"
-     region            = "us-west-2"
-     security_groups   = "sg-1,sg-2"
-     vpc_id            = "vpc-12"
-     key_name          = "ssh-key"
-     subnet_id         = "pub-1"
-     environment       = "prod"
-   }
+    module "bastion" {
+      source            = "github.com/segmentio/stack/bastion"
+      region            = "us-west-2"
+      security_groups   = "sg-1,sg-2"
+      vpc_id            = "vpc-12"
+      key_name          = "ssh-key"
+      subnet_id         = "pub-1"
+      environment       = "prod"
+    }
 
 
 
@@ -181,10 +181,10 @@ with the name `stack.local`, the service address will be `auth.stack.local`.
 
 Usage:
 
-   module "dns" {
-     source = "github.com/segment/stack"
-     name   = "stack.local"
-   }
+    module "dns" {
+      source = "github.com/segment/stack"
+      name   = "stack.local"
+    }
 
 
 
@@ -303,12 +303,12 @@ The module creates an IAM user.
 
 Usage:
 
-   module "my_user" {
-     name = "user"
-     policy = <<EOF
-     {}
-   EOF
-   }
+    module "my_user" {
+      name = "user"
+      policy = <<EOF
+      {}
+    EOF
+    }
 
 
 
