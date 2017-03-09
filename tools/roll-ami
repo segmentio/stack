@@ -6,9 +6,12 @@ import queue
 import sys
 import threading
 import time
+import copy
 
 asg = boto3.client('autoscaling')
 ec2 = boto3.client('ec2')
+ecs = boto3.client('ecs')
+
 
 def main(argv):
     options = parse_arguments(argv)
@@ -107,6 +110,25 @@ def run(options, step_size=1, launch_config=None, force=False, ignore_instances=
         )['InstanceStatuses']:
             info('%s - running', instance['InstanceId'])
             tmp_instances.remove(instance['InstanceId'])
+
+    container_instance_id_map = build_container_instance_map(options.cluster)
+
+    # Drain old instances
+    ecs.update_container_instances_state(
+        cluster=options.cluster,
+        containerInstances=[container_instance_id_map[instance] for instance in old_instances],
+        status='DRAINING')
+
+    draining_instances = copy.copy(old_instances)
+    while draining_instances:
+        time.sleep(1)
+        ci_info = ecs.describe_container_instances(
+            cluster=options.cluster,
+            containerInstances=[container_instance_id_map[instance] for instance in draining_instances])
+        for container_instance in ci_info['containerInstances']:
+            if container_instance['runningTasksCount'] == 0:
+                draining_instances.remove(container_instance['ec2InstanceId'])
+                info('%s - drained', container_instance['ec2InstanceId'])
 
     # Terminates the old instances that aren't necessary anymore (the ones
     # that were picked by the iterator).
@@ -208,6 +230,16 @@ def filter_new_instances(instances, group_instances):
 
     new_instances.sort()
     return new_instances
+
+def build_container_instance_map(cluster):
+    container_instances = ecs.list_container_instances(cluster=cluster)
+    full_info = ecs.describe_container_instances(cluster=cluster,
+                                                 containerInstances=container_instances['containerInstanceArns'])
+
+    container_instance_map = {}
+    for ci in full_info['containerInstances']:
+        container_instance_map[ci['ec2InstanceId']] = ci['containerInstanceArn']
+    return container_instance_map
 
 def iter_instance_groups(instances, group_size):
     while instances:
