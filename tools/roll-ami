@@ -121,7 +121,7 @@ def run(options, step_size=1, launch_config=None, force=False, ignore_instances=
 
     draining_instances = copy.copy(old_instances)
     while draining_instances:
-        time.sleep(1)
+        time.sleep(5)
         ci_info = ecs.describe_container_instances(
             cluster=options.cluster,
             containerInstances=[container_instance_id_map[instance] for instance in draining_instances])
