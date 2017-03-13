@@ -53,7 +53,7 @@ This will automatically setup your basic networking configuration with an auto-s
 
 Now that we've got all the basics setup, how about adding a service?
 
-Services pull images from Docker Hub and then run the images as contianers via ECS. They are automatically discoverable at `<service-name.stack.local>` and will run with zero-downtime deploys.
+Services pull images from Docker Hub and then run the images as containers via ECS. They are automatically discoverable at `<service-name.stack.local>` and will run with zero-downtime deploys.
 We can can use the `stack//service` module to automatically provision all of the required parts of the service, including a load balancer, ECS service, and Route53 DNS entry.
 
 Here's a sample service definition, try adding it to your `terraform.tf` file.
