@@ -114,6 +114,8 @@ def run(options, step_size=1, launch_config=None, force=False, ignore_instances=
     container_instance_id_map = build_container_instance_map(options.cluster)
 
     # Drain old instances
+    for instance in old_instances:
+        info('%s - draining', instance)
     ecs.update_container_instances_state(
         cluster=options.cluster,
         containerInstances=[container_instance_id_map[instance] for instance in old_instances],
