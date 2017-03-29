@@ -115,14 +115,16 @@ def run(options, step_size=1, launch_config=None, force=False, ignore_instances=
 
     # Drain old instances
     info('draining ECS container instances...')
-    for instance in old_instances:
+    draining_instances = [i for i in old_instances if i in container_instance_id_map]
+
+    for instance in draining_instances:
         info('%s - draining', instance)
+
     ecs.update_container_instances_state(
         cluster=options.cluster,
-        containerInstances=[container_instance_id_map[instance] for instance in old_instances],
+        containerInstances=[container_instance_id_map[i] for i in draining_instances],
         status='DRAINING')
 
-    draining_instances = copy.copy(old_instances)
     while draining_instances:
         time.sleep(5)
         ci_info = ecs.describe_container_instances(
