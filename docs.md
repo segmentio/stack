@@ -1,4 +1,3 @@
-
 # Stack
 
 The stack module combines sub modules to create a complete
@@ -7,13 +6,30 @@ and a bastion node that enables you to access all instances.
 
 Usage:
 
-   module "stack" {
-     source      = "github.com/segmentio/stack"
-     name        = "mystack"
-     environment = "prod"
-   }
+    module "stack" {
+      source      = "github.com/segmentio/stack"
+      name        = "mystack"
+      environment = "prod"
+    }
 
+## Available Modules
 
+* [stack](#stack)
+* [bastion](#bastion)
+* [defaults](#defaults)
+* [dhcp](#dhcp)
+* [dns](#dns)
+* [ecs-cluster](#ecs-cluster)
+* [elb](#elb)
+* [iam-user](#iam-user)
+* [rds-cluster](#rds-cluster)
+* [s3-logs](#s3-logs)
+* [security-groups](#security-groups)
+* [service](#service)
+* [task](#task)
+* [vpc](#vpc)
+* [web-service](#web-service)
+* [worker](#worker)
 
 ## Inputs
 
@@ -40,7 +56,7 @@ Usage:
 | ecs_docker_volume_size | the size of the ecs instance docker volume | `25` | no |
 | ecs_docker_auth_type | The docker auth type, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the possible values | `` | no |
 | ecs_docker_auth_data | A JSON object providing the docker auth data, see https://godoc.org/github.com/aws/amazon-ecs-agent/agent/engine/dockerauth for the supported formats | `` | no |
-| ecs_security_groups | A comma separated list of security groups from which ingest traffic will be allowed on the ECS cluster, it defaults to allowing ingress traffic on port 22 and coming grom the ELBs | `` | no |
+| ecs_security_groups | A comma separated list of security groups from which ingest traffic will be allowed on the ECS cluster, it defaults to allowing ingress traffic on port 22 and coming from the ELBs | `` | no |
 | ecs_ami | The AMI that will be used to launch EC2 instances in the ECS cluster | `` | no |
 | extra_cloud_config_type | Extra cloud config type | `text/cloud-config` | no |
 | extra_cloud_config_content | Extra cloud config content | `` | no |
@@ -81,15 +97,15 @@ If you ever need to access an instance directly, you can do it by "jumping throu
 
 Usage:
 
-   module "bastion" {
-     source            = "github.com/segmentio/stack/bastion"
-     region            = "us-west-2"
-     security_groups   = "sg-1,sg-2"
-     vpc_id            = "vpc-12"
-     key_name          = "ssh-key"
-     subnet_id         = "pub-1"
-     environment       = "prod"
-   }
+    module "bastion" {
+      source            = "github.com/segmentio/stack/bastion"
+      region            = "us-west-2"
+      security_groups   = "sg-1,sg-2"
+      vpc_id            = "vpc-12"
+      key_name          = "ssh-key"
+      subnet_id         = "pub-1"
+      environment       = "prod"
+    }
 
 
 
@@ -165,10 +181,10 @@ with the name `stack.local`, the service address will be `auth.stack.local`.
 
 Usage:
 
-   module "dns" {
-     source = "github.com/segment/stack"
-     name   = "stack.local"
-   }
+    module "dns" {
+      source = "github.com/segment/stack"
+      name   = "stack.local"
+    }
 
 
 
@@ -287,12 +303,12 @@ The module creates an IAM user.
 
 Usage:
 
-   module "my_user" {
-     name = "user"
-     policy = <<EOF
-     {}
-   EOF
-   }
+    module "my_user" {
+      name = "user"
+      policy = <<EOF
+      {}
+    EOF
+    }
 
 
 
@@ -589,4 +605,3 @@ Usage:
 | cpu | The number of cpu units to reserve for the container | `512` | no |
 | deployment_minimum_healthy_percent | lower limit (% of desired_count) of # of running tasks during a deployment | `100` | no |
 | deployment_maximum_percent | upper limit (% of desired_count) of # of running tasks during a deployment | `200` | no |
-
