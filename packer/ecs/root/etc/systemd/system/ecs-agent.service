@@ -14,7 +14,7 @@ ExecStartPre=/bin/mkdir -p /var/lib/ecs/data
 ExecStartPre=/bin/mkdir -p /var/log/ecs
 ExecStartPre=-/usr/bin/docker kill ecs-agent
 ExecStartPre=-/usr/bin/docker rm ecs-agent
-ExecStartPre=-/usr/bin/docker pull amazon/amazon-ecs-agent:v1.13.1
+ExecStartPre=-/usr/bin/docker pull amazon/amazon-ecs-agent:v1.14.1
 ExecStart=/usr/bin/docker run \
     --name=ecs-agent \
     --restart=on-failure:10 \
@@ -26,7 +26,7 @@ ExecStart=/usr/bin/docker run \
     --publish=127.0.0.1:51678:51678 \
     --env-file=/etc/ecs/ecs.config \
     --env=ECS_CLUSTER=${SERVER_GROUP} \
-    amazon/amazon-ecs-agent:v1.13.1
+    amazon/amazon-ecs-agent:v1.14.1
 ExecStop=-/usr/bin/docker stop ecs-agent
 
 [Install]
