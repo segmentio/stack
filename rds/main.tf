@@ -87,32 +87,40 @@ variable "subnet_ids" {
   type        = "list"
 }
 
+resource "aws_security_group_rule" "main-ingress-cidrs" {
+  security_group_id = "${aws_security_group.main.id}"
+  type              = "ingress"
+  cidr_blocks       = ["${var.ingress_allow_cidr_blocks}"]
+  from_port         = "${var.port}"
+  to_port           = "${var.port}"
+  protocol          = "TCP"
+}
+
+resource "aws_security_group_rule" "main-ingress-sgs" {
+  security_group_id        = "${aws_security_group.main.id}"
+  type                     = "ingress"
+  count                    = "${length(var.ingress_allow_security_groups)}"
+  source_security_group_id = "${element(var.ingress_allow_security_groups, count.index)}"
+
+  from_port                = "${var.port}"
+  to_port                  = "${var.port}"
+  protocol                 = "TCP"
+}
+
+resource "aws_security_group_rule" "main-egress-all" {
+  security_group_id = "${aws_security_group.main.id}"
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = -1
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
 resource "aws_security_group" "main" {
   name        = "${var.name}-rds"
   description = "Allows traffic to RDS from other security groups"
   vpc_id      = "${var.vpc_id}"
-
-  ingress {
-    from_port       = "${var.port}"
-    to_port         = "${var.port}"
-    protocol        = "TCP"
-    security_groups = ["${var.ingress_allow_security_groups}"]
-  }
-
-  ingress {
-    from_port   = "${var.port}"
-    to_port     = "${var.port}"
-    protocol    = "TCP"
-    cidr_blocks = ["${var.ingress_allow_cidr_blocks}"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags {
     Name = "RDS (${var.name})"
   }
