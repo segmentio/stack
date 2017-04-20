@@ -24,14 +24,17 @@
 variable "instance_type" {
   default     = "t2.micro"
   description = "Instance type, see a list at: https://aws.amazon.com/ec2/instance-types/"
+  type = "string"
 }
 
 variable "region" {
   description = "AWS Region, e.g us-west-2"
+  type = "string"
 }
 
 variable "security_groups" {
-  description = "a comma separated lists of security group IDs"
+  description = "List of security group IDs"
+  type = "list"
 }
 
 variable "vpc_id" {
@@ -63,7 +66,7 @@ resource "aws_instance" "bastion" {
   instance_type          = "${var.instance_type}"
   subnet_id              = "${var.subnet_id}"
   key_name               = "${var.key_name}"
-  vpc_security_group_ids = ["${split(",",var.security_groups)}"]
+  vpc_security_group_ids = ["${var.security_groups}"]
   monitoring             = true
   user_data              = "${file(format("%s/user_data.sh", path.module))}"
 

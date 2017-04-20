@@ -6,42 +6,78 @@
 
 variable "name" {
   description = "ELB name, e.g cdn"
+  type = "string"
 }
 
 variable "subnet_ids" {
-  description = "Comma separated list of subnet IDs"
+  description = "List of subnet IDs"
+  type = "list"
 }
 
 variable "environment" {
   description = "Environment tag, e.g prod"
+  type = "string"
 }
 
 variable "port" {
   description = "Instance port"
+  type = "string"
 }
 
 variable "security_groups" {
-  description = "Comma separated list of security group IDs"
+  description = "List of security group IDs"
+  type = "list"
 }
 
 variable "dns_name" {
   description = "Route53 record name"
+  type = "string"
 }
 
 variable "healthcheck" {
   description = "Healthcheck path"
+  type = "string"
+}
+
+variable "healthcheck_healthy_threshold" {
+  description = "Number of consecutive health check successes before declaring an EC2 instance healthy."
+  default     = 2
+}
+
+variable "healthcheck_unhealthy_threshold" {
+  description = "Number of consecutive health check failures before declaring an EC2 instance unhealthy."
+  default     = 2
+}
+
+variable "healthcheck_timeout" {
+  description = "Time to wait when receiving a response from the health check (2 sec  60 sec)."
+  default     = 5
+}
+
+variable "healthcheck_interval" {
+  description = "Amount of time between health checks (5 sec  300 sec)"
+  default     = 30
 }
 
 variable "protocol" {
   description = "Protocol to use, HTTP or TCP"
+  type = "string"
 }
 
 variable "zone_id" {
   description = "Route53 zone ID to use for dns_name"
+  type = "string"
 }
 
 variable "log_bucket" {
   description = "S3 bucket name to write ELB logs into"
+  type = "string"
+}
+
+# https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/config-idle-timeout.html?icmpid=docs_elb_console
+variable "idle_timeout" {
+  description = "ELB idle connection timeout"
+  default     = 30
 }
 
 /**
@@ -53,26 +89,26 @@ resource "aws_elb" "main" {
 
   internal                  = true
   cross_zone_load_balancing = true
-  subnets                   = ["${split(",", var.subnet_ids)}"]
-  security_groups           = ["${split(",",var.security_groups)}"]
+  subnets                   = ["${var.subnet_ids}"]
+  security_groups           = ["${var.security_groups}"]
 
-  idle_timeout                = 30
+  idle_timeout                = "${var.idle_timeout}"
   connection_draining         = true
   connection_draining_timeout = 15
 
   listener {
-    lb_port           = 80
+    lb_port           = "${var.port}"
     lb_protocol       = "${var.protocol}"
     instance_port     = "${var.port}"
     instance_protocol = "${var.protocol}"
   }
 
   health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    timeout             = 5
+    healthy_threshold   = "${var.healthcheck_healthy_threshold}"
+    unhealthy_threshold = "${var.healthcheck_unhealthy_threshold}"
+    timeout             = "${var.healthcheck_timeout}"
     target              = "${var.protocol}:${var.port}${var.healthcheck}"
-    interval            = 30
+    interval            = "${var.healthcheck_interval}"
   }
 
   access_logs {
@@ -102,6 +138,11 @@ resource "aws_route53_record" "main" {
  * Outputs.
  */
 
+// Instance port
+output "port" {
+  value = "${var.port}"
+}
+
 // The ELB name.
 output "name" {
   value = "${aws_elb.main.name}"
@@ -126,3 +167,4 @@ output "fqdn" {
 output "zone_id" {
   value = "${aws_elb.main.zone_id}"
 }
+

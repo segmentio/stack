@@ -265,11 +265,6 @@ output "iam_role" {
   value = "${module.iam_role.arn}"
 }
 
-// Default ECS role ID. Useful if you want to add a new policy to that role.
-output "iam_role_default_ecs_role_id" {
-  value = "${module.iam_role.default_ecs_role_id}"
-}
-
 // S3 bucket ID for ELB logs.
 output "log_bucket_id" {
   value = "${module.s3_logs.id}"
@@ -308,14 +303,4 @@ output "vpc_id" {
 // The default ECS cluster security group ID.
 output "ecs_cluster_security_group_id" {
   value = "${module.ecs_cluster.security_group_id}"
-}
-
-// Comma separated list of internal route table IDs.
-output "internal_route_tables" {
-  value = "${module.vpc.internal_rtb_id}"
-}
-
-// The external route table ID.
-output "external_route_tables" {
-  value = "${module.vpc.external_rtb_id}"
 }
