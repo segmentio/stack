@@ -1,5 +1,5 @@
 variable "name" {
-  description = "RDS name and Postgres username"
+  description = "RDS instance name"
 }
 
 variable "engine" {
@@ -15,6 +15,16 @@ variable "engine_version" {
 variable "port" {
   description = "Port for database to listen on"
   default     = 5432
+}
+
+variable "database" {
+  description = "The database name for the RDS instance (if not specified, `var.name` will be used)"
+  default     = ""
+}
+
+variable "username" {
+  description = "The username for the RDS instance (if not specified, `var.name` will be used)"
+  default     = ""
 }
 
 variable "password" {
@@ -130,10 +140,10 @@ resource "aws_db_instance" "main" {
   # Database
   engine         = "${var.engine}"
   engine_version = "${var.engine_version}"
-  username       = "${var.name}"
+  username       = "${coalesce(var.username, var.name)}"
   password       = "${var.password}"
   multi_az       = "${var.multi_az}"
-  name           = "${var.name}"
+  name           = "${coalesce(var.database, var.name)}"
 
   # Backups / maintenance
   backup_retention_period = "${var.backup_retention_period}"
