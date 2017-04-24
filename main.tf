@@ -139,6 +139,14 @@ variable "extra_cloud_config_content" {
   default     = ""
 }
 
+variable "logs_expiration_enabled" {
+  default = false
+}
+
+variable "logs_expiration_days" {
+  default = 30
+}
+
 module "defaults" {
   source = "./defaults"
   region = "${var.region}"
@@ -219,10 +227,12 @@ module "ecs_cluster" {
 }
 
 module "s3_logs" {
-  source      = "./s3-logs"
-  name        = "${var.name}"
-  environment = "${var.environment}"
-  account_id  = "${module.defaults.s3_logs_account_id}"
+  source                  = "./s3-logs"
+  name                    = "${var.name}"
+  environment             = "${var.environment}"
+  account_id              = "${module.defaults.s3_logs_account_id}"
+  logs_expiration_enabled = "${var.logs_expiration_enabled}"
+  logs_expiration_days    = "${var.logs_expiration_days}"
 }
 
 // The region in which the infra lives.
