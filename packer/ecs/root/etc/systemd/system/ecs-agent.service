@@ -24,6 +24,7 @@ ExecStart=/usr/bin/docker run \
     --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro \
     --volume=/var/run/docker/execdriver/native:/var/lib/docker/execdriver/native:ro \
     --publish=127.0.0.1:51678:51678 \
+    --publish=127.0.0.1:51679:51679 \
     --env-file=/etc/ecs/ecs.config \
     --env=ECS_CLUSTER=${SERVER_GROUP} \
     amazon/amazon-ecs-agent:v1.14.1
