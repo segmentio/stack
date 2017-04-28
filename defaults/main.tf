@@ -60,9 +60,9 @@ output "domain_name_servers" {
 }
 
 output "ecs_ami" {
-  value = "${lookup(var.default_ecs_ami, var.region)}"
+  value = "ami-5f3ff932"
 }
 
 output "s3_logs_account_id" {
-  value = "${lookup(var.default_log_account_ids, var.region)}"
+  value = "127311923021"
 }

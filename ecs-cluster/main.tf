@@ -78,7 +78,7 @@ variable "instance_ebs_optimized" {
 
 variable "min_size" {
   description = "Minimum instance count"
-  default     = 3
+  default     = 1
 }
 
 variable "max_size" {
@@ -88,7 +88,7 @@ variable "max_size" {
 
 variable "desired_capacity" {
   description = "Desired instance count"
-  default     = 3
+  default     = 2
 }
 
 variable "associate_public_ip_address" {

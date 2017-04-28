@@ -37,7 +37,7 @@ variable "domain_name_servers" {
 
 variable "region" {
   description = "the AWS region in which resources are created, you must set the availability_zones variable as well if you define this value to something other than the default"
-  default     = "us-west-2"
+  default     = "us-east-1"
 }
 
 variable "cidr" {
@@ -57,7 +57,7 @@ variable "external_subnets" {
 
 variable "availability_zones" {
   description = "a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well"
-  default     = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  default     = ["us-east-1d", "us-east-1a", "us-east-1b"]
 }
 
 variable "bastion_instance_type" {
@@ -82,11 +82,10 @@ variable "ecs_instance_ebs_optimized" {
 
 variable "ecs_min_size" {
   description = "the minimum number of instances to use in the default ecs cluster"
-
-  // create 3 instances in our cluster by default
-  // 2 instances to run our service with high-availability
+  // create 2 instances in our cluster by default
+  // 1 instance to run our service
   // 1 extra instance so we can deploy without port collisions
-  default = 3
+  default = 2
 }
 
 variable "ecs_max_size" {
@@ -96,7 +95,7 @@ variable "ecs_max_size" {
 
 variable "ecs_desired_capacity" {
   description = "the desired number of instances to use in the default ecs cluster"
-  default     = 3
+  default     = 2
 }
 
 variable "ecs_root_volume_size" {
@@ -126,7 +125,7 @@ variable "ecs_security_groups" {
 
 variable "ecs_ami" {
   description = "The AMI that will be used to launch EC2 instances in the ECS cluster"
-  default     = ""
+  default     = "ami-5f3ff932"
 }
 
 variable "extra_cloud_config_type" {
