@@ -3,3 +3,4 @@ base: base
 
 scripts:
   - ecs.sh
+  - dynatrace-staging.sh
