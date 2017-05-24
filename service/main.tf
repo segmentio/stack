@@ -121,6 +121,11 @@ variable "deployment_maximum_percent" {
   default     = 200
 }
 
+variable "log_driver" {
+  description = "The log driver to use use for the container"
+  default     = "journald"
+}
+
 /**
  * Resources.
  */
@@ -155,6 +160,7 @@ module "task" {
   env_vars      = "${var.env_vars}"
   memory        = "${var.memory}"
   cpu           = "${var.cpu}"
+  log_driver    = "${var.log_driver}"
 
   ports = <<EOF
   [
