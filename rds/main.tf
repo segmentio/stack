@@ -156,7 +156,7 @@ resource "aws_db_instance" "main" {
   backup_window             = "${var.backup_window}"
   maintenance_window        = "${var.maintenance_window}"
   apply_immediately         = "${var.apply_immediately}"
-  final_snapshot_identifier = "${var.name}-finalsnapshot"
+  final_snapshot_identifier = "${var.replicate_source_db != "" ? "" : format("%s-finalsnapshot", var.name)}"
 
   # Hardware
   instance_class    = "${var.instance_class}"
