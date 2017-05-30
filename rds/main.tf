@@ -156,7 +156,8 @@ resource "aws_db_instance" "main" {
   backup_window             = "${var.backup_window}"
   maintenance_window        = "${var.maintenance_window}"
   apply_immediately         = "${var.apply_immediately}"
-  final_snapshot_identifier = "${var.replicate_source_db != "" ? "" : format("%s-finalsnapshot", var.name)}"
+  skip_final_snapshot       = "${var.replicate_source_db == ""}"
+  final_snapshot_identifier = "${var.name}-finalsnapshot"
 
   # Hardware
   instance_class    = "${var.instance_class}"
@@ -168,7 +169,7 @@ resource "aws_db_instance" "main" {
   vpc_security_group_ids = ["${aws_security_group.main.id}"]
   publicly_accessible    = "${var.publicly_accessible}"
 
-  replicate_source_db    = "${var.replicate_source_db}"
+  replicate_source_db = "${var.replicate_source_db}"
 }
 
 output "addr" {
