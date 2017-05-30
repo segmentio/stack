@@ -152,10 +152,11 @@ resource "aws_db_instance" "main" {
   name           = "${coalesce(var.database, var.name)}"
 
   # Backups / maintenance
-  backup_retention_period = "${var.backup_retention_period}"
-  backup_window           = "${var.backup_window}"
-  maintenance_window      = "${var.maintenance_window}"
-  apply_immediately       = "${var.apply_immediately}"
+  backup_retention_period   = "${var.backup_retention_period}"
+  backup_window             = "${var.backup_window}"
+  maintenance_window        = "${var.maintenance_window}"
+  apply_immediately         = "${var.apply_immediately}"
+  final_snapshot_identifier = "${var.name}-finalsnapshot"
 
   # Hardware
   instance_class    = "${var.instance_class}"
@@ -171,5 +172,9 @@ resource "aws_db_instance" "main" {
 }
 
 output "addr" {
-  value = "postgres://${aws_db_instance.main.username}:${aws_db_instance.main.password}@${aws_db_instance.main.endpoint}"
+  value = "${aws_db_instance.main.engine}://${aws_db_instance.main.username}:${aws_db_instance.main.password}@${aws_db_instance.main.endpoint}"
+}
+
+output "url" {
+  value = "${aws_db_instance.main.engine}://${aws_db_instance.main.username}:${aws_db_instance.main.password}@${aws_db_instance.main.endpoint}/${aws_db_instance.main.name}"
 }
