@@ -73,7 +73,7 @@ variable "dns_name" {
 
 variable "port" {
   description = "The port at which the database listens for incoming connections"
-  default     = 3306
+  default     = 5432
 }
 
 variable "skip_final_snapshot" {
