@@ -82,6 +82,10 @@ variable "deployment_maximum_percent" {
  * Resources.
  */
 
+data "aws_ecs_task_definition" "task" {
+  task_definition = "${module.task.name}"
+}
+
 resource "aws_ecs_service" "main" {
   name                               = "${module.task.name}"
   cluster                            = "${var.cluster}"
@@ -89,6 +93,14 @@ resource "aws_ecs_service" "main" {
   desired_count                      = "${var.desired_count}"
   deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
   deployment_maximum_percent         = "${var.deployment_maximum_percent}"
+
+  # Track the latest active revision
+  task_definition = "${replace("${module.task.arn}",
+                               "/:[0-9]*$/",
+                               ":${max("${module.task.revision}",
+                                       "${data.aws_ecs_task_definition.task.revision}"
+                                      )}"
+                              )}"
 
   lifecycle {
     create_before_destroy = true
