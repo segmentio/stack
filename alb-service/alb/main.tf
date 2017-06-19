@@ -77,6 +77,11 @@ resource "aws_alb_target_group" "main" {
   vpc_id     = "${var.vpc_id}"
   depends_on = ["aws_alb.main"]
 
+  stickiness {
+    type    = "lb_cookie"
+    enabled = true
+  }
+
   health_check {
     healthy_threshold   = 2
     unhealthy_threshold = 2
