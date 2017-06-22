@@ -67,6 +67,11 @@ variable "log_driver" {
   default     = "journald"
 }
 
+variable "role" {
+  description = "The IAM Role to assign to the Container"
+  default     = ""
+}
+
 /**
  * Resources.
  */
@@ -74,7 +79,8 @@ variable "log_driver" {
 # The ECS task definition.
 
 resource "aws_ecs_task_definition" "main" {
-  family = "${var.name}"
+  family        = "${var.name}"
+  task_role_arn = "${var.role}"
 
   lifecycle {
     ignore_changes        = ["image"]
