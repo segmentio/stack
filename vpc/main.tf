@@ -31,9 +31,10 @@ variable "name" {
  */
 
 resource "aws_vpc" "main" {
-  cidr_block           = "${var.cidr}"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+  cidr_block                       = "${var.cidr}"
+  enable_dns_support               = true
+  enable_dns_hostnames             = true
+  assign_generated_ipv6_cidr_block = true
 
   tags {
     Name        = "${var.name}"
@@ -154,6 +155,10 @@ resource "aws_route_table_association" "external" {
 // The VPC ID
 output "id" {
   value = "${aws_vpc.main.id}"
+}
+
+output "ipv6_cidr_block" {
+  value = "${aws_vpc.main.ipv6_cidr_block}"
 }
 
 // A comma-separated list of subnet IDs.
