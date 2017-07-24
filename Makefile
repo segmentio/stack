@@ -33,8 +33,13 @@ endif
 
 install-tools: $(tools)
 
+ifeq (${platform},Darwin)
 /usr/local/bin/%: ./tools/%
 	install -S -m 0755 $< /usr/local/bin
+else
+/usr/local/bin/%: ./tools/%
+	install -m 0755 $< /usr/local/bin
+endif
 
 amis:
 	pack-ami build -p ./packer -t base -r
