@@ -48,8 +48,7 @@ variable "internal_zone_id" {
   description = "The zone ID to create the record in"
 }
 
-variable "ssl_certificate_id" {
-}
+variable "ssl_certificate_id" {}
 
 /**
  * Resources.

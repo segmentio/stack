@@ -194,7 +194,7 @@ For more complicated service discovery which handles cases like versioning, we'd
 
 ### Bastion
 
-The bastion host acts as the "jump point" for the rest of the infrastructure. Since most of our instances aren't exposed to the external internet, the bastion acts as the gatekeeper for any direct SSH access.
+The bastion host acts as the "jump point" for the rest of the infrastructure. Since most of our instances are not exposed to the external internet, the bastion acts as the gatekeeper for any direct SSH access.
 
 The bastion is provisioned using the key name that you pass to the stack (and hopefully have stored somewhere). If you ever need to access an instance directly, you can do it by "jumping through" the bastion:
 
