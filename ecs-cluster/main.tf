@@ -93,7 +93,7 @@ variable "desired_capacity" {
 
 variable "associate_public_ip_address" {
   description = "Should created instances be publicly accessible (if the SG allows)"
-  default = false
+  default     = false
 }
 
 variable "root_volume_size" {
@@ -124,35 +124,6 @@ variable "extra_cloud_config_type" {
 variable "extra_cloud_config_content" {
   description = "Extra cloud config content"
   default     = ""
-}
-
-resource "aws_security_group" "cluster" {
-  name        = "${var.name}-ecs-cluster"
-  vpc_id      = "${var.vpc_id}"
-  description = "Allows traffic from and to the EC2 instances of the ${var.name} ECS cluster"
-
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = -1
-    security_groups = ["${split(",", var.security_groups)}"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = -1
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags {
-    Name        = "ECS cluster (${var.name})"
-    Environment = "${var.environment}"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }
 
 resource "aws_ecs_cluster" "main" {
@@ -198,7 +169,7 @@ resource "aws_launch_configuration" "main" {
   ebs_optimized               = "${var.instance_ebs_optimized}"
   iam_instance_profile        = "${var.iam_instance_profile}"
   key_name                    = "${var.key_name}"
-  security_groups             = ["${aws_security_group.cluster.id}"]
+  security_groups             = ["${split(",", var.security_groups)}"]
   user_data                   = "${data.template_cloudinit_config.cloud_config.rendered}"
   associate_public_ip_address = "${var.associate_public_ip_address}"
 
@@ -381,9 +352,4 @@ resource "aws_cloudwatch_metric_alarm" "memory_low" {
 // The cluster name, e.g cdn
 output "name" {
   value = "${var.name}"
-}
-
-// The cluster security group ID.
-output "security_group_id" {
-  value = "${aws_security_group.cluster.id}"
 }
