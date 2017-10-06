@@ -51,6 +51,11 @@ variable "maintenance_window" {
   default     = "Mon:01:00-Mon:02:00"
 }
 
+variable "monitoring_interval" {
+  description = "Seconds between enhanced monitoring metric collection. 0 disables enhanced monitoring."
+  default     = "0"
+}
+
 variable "apply_immediately" {
   description = "If false, apply changes during maintenance window"
   default     = true
@@ -149,6 +154,7 @@ resource "aws_db_instance" "main" {
   backup_retention_period   = "${var.backup_retention_period}"
   backup_window             = "${var.backup_window}"
   maintenance_window        = "${var.maintenance_window}"
+  monitoring_interval       = "${var.monitoring_interval}"
   apply_immediately         = "${var.apply_immediately}"
   final_snapshot_identifier = "${var.name}-finalsnapshot"
 
