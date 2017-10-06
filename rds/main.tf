@@ -56,6 +56,11 @@ variable "monitoring_interval" {
   default     = "0"
 }
 
+variable "monitoring_role_arn" {
+  description = "The ARN for the IAM role that permits RDS to send enhanced monitoring metrics to CloudWatch Logs. Required if monitoring_interval > 0."
+  default     = ""
+}
+
 variable "apply_immediately" {
   description = "If false, apply changes during maintenance window"
   default     = true
@@ -155,6 +160,7 @@ resource "aws_db_instance" "main" {
   backup_window             = "${var.backup_window}"
   maintenance_window        = "${var.maintenance_window}"
   monitoring_interval       = "${var.monitoring_interval}"
+  monitoring_role_arn       = "${var.monitoring_role_arn}"
   apply_immediately         = "${var.apply_immediately}"
   final_snapshot_identifier = "${var.name}-finalsnapshot"
 
