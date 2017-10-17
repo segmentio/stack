@@ -230,7 +230,6 @@ module "s3_logs" {
   source                  = "./s3-logs"
   name                    = "${var.name}"
   environment             = "${var.environment}"
-  account_id              = "${module.defaults.s3_logs_account_id}"
   logs_expiration_enabled = "${var.logs_expiration_enabled}"
   logs_expiration_days    = "${var.logs_expiration_days}"
 }
