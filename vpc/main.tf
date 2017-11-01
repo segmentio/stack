@@ -151,13 +151,24 @@ resource "aws_instance" "nat_instance" {
     Environment = "${var.environment}"
   }
 
-  key_name                    = "${var.nat_instance_ssh_key_name}"
-  ami                         = "${data.aws_ami.nat_ami.id}"
-  instance_type               = "${var.nat_instance_type}"
-  source_dest_check           = false
-  associate_public_ip_address = true
-  subnet_id                   = "${element(aws_subnet.external.*.id, count.index)}"
-  vpc_security_group_ids      = ["${aws_security_group.nat_instances.id}"]
+  key_name          = "${var.nat_instance_ssh_key_name}"
+  ami               = "${data.aws_ami.nat_ami.id}"
+  instance_type     = "${var.nat_instance_type}"
+  source_dest_check = false
+
+  # associate_public_ip_address is not used,,
+  # as public subnets have map_public_ip_on_launch set to true.
+  # Also, using associate_public_ip_address causes issues with
+  # stopped NAT instances which do not use an Elastic IP.
+  # - For more details: https://github.com/terraform-providers/terraform-provider-aws/issues/343
+  subnet_id = "${element(aws_subnet.external.*.id, count.index)}"
+
+  vpc_security_group_ids = ["${aws_security_group.nat_instances.id}"]
+
+  lifecycle {
+    # Ignore changes to the NAT AMI data source.
+    ignore_changes = ["ami"]
+  }
 }
 
 resource "aws_eip_association" "nat_instance_eip" {
