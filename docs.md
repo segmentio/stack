@@ -44,6 +44,10 @@ Usage:
 | cidr | the CIDR block to provision for the VPC, if set to something other than the default, both internal_subnets and external_subnets have to be defined as well | `10.30.0.0/16` | no |
 | internal_subnets | a list of CIDRs for internal subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | `<list>` | no |
 | external_subnets | a list of CIDRs for external subnets in your VPC, must be set if the cidr variable is defined, needs to have as many elements as there are availability zones | `<list>` | no |
+| use_nat_instances | use NAT EC2 instances instead of the NAT gateway service | `false` | no |
+| use_eip_with_nat_instances | use Elastic IPs with NAT instances if `use_nat_instances` is true | `false` | no |
+| nat_instance_type | the EC2 instance type for NAT instances if `use_nat_instances` is true | `t2.nano` | no |
+| nat_instance_ssh_key_name | the name of the ssh key to use with NAT instances if `use_nat_instances` is true | "" | no |
 | availability_zones | a comma-separated list of availability zones, defaults to all AZ of the region, if set to something other than the defaults, both internal_subnets and external_subnets have to be defined as well | `<list>` | no |
 | bastion_instance_type | Instance type for the bastion | `t2.micro` | no |
 | ecs_cluster_name | the name of the cluster, if not specified the variable name will be used | `` | no |
