@@ -265,6 +265,11 @@ output "id" {
   value = "${aws_vpc.main.id}"
 }
 
+// The VPC CIDR
+output "cidr_block" {
+  value = "${aws_vpc.main.cidr_block}"
+}
+
 // A comma-separated list of subnet IDs.
 output "external_subnets" {
   value = ["${aws_subnet.external.*.id}"]
