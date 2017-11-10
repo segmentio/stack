@@ -386,7 +386,7 @@ class Template(object):
             packer.wait()
 
             if packer.returncode != 0:
-                raise Exception("Buliding %s failed: see logs in %s" % (self.name, pwd))
+                raise Exception("Building %s failed: see logs in %s" % (self.name, pwd))
 
             try:
                 ami = subprocess.check_output("grep ami- %s  | tail -n 1 | cut -d' ' -f2" % os.path.join(pwd, 'stdout.log'), shell=True)
