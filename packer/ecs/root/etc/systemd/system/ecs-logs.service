@@ -11,12 +11,12 @@ RestartPreventExitStatus=5
 SyslogIdentifier=ecs-logs
 ExecStartPre=-/usr/bin/docker kill ecs-logs
 ExecStartPre=-/usr/bin/docker rm ecs-logs
-ExecStartPre=-/usr/bin/docker pull segment/ecs-logs:0.1.1
+ExecStartPre=-/usr/bin/docker pull segment/ecs-logs:0.1.5
 ExecStart=/usr/bin/docker run \
     --name=ecs-logs \
     --restart=on-failure:10 \
     --volume=/run/log/journal:/run/log/journal:ro \
-    segment/ecs-logs:0.1.1 -src journald -dst cloudwatchlogs
+    segment/ecs-logs:0.1.5 -src journald -dst cloudwatchlogs
 ExecStop=-/usr/bin/docker stop ecs-logs
 
 [Install]

@@ -92,7 +92,7 @@ Usage:
 # bastion
 
 The bastion host acts as the "jump point" for the rest of the infrastructure.
-Since most of our instances aren't exposed to the external internet, the bastion acts as the gatekeeper for any direct SSH access.
+Since most of our instances are not exposed to the external internet, the bastion acts as the gatekeeper for any direct SSH access.
 The bastion is provisioned using the key name that you pass to the stack (and hopefully have stored somewhere).
 If you ever need to access an instance directly, you can do it by "jumping through" the bastion.
 
@@ -134,7 +134,7 @@ Usage:
 # defaults
 
 This module is used to set configuration defaults for the AWS infrastructure.
-It doesn't provide much value when used on its own because terraform makes it
+It does not provide much value when used on its own because terraform makes it
 hard to do dynamic generations of things like subnets, for now it's used as
 a helper module for the stack.
 
