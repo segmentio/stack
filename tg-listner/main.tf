@@ -17,6 +17,7 @@ variable "port" {
 
 variable "protocol" {
   description = "Protocol to use, HTTP or TCP"
+  default = "HTTP"
 }
 
 variable "vpc_id" {

@@ -30,6 +30,11 @@ variable "name" {
   default     = ""
 }
 
+variable "protocol" {
+  description = "Protocol to use, HTTP or TCP"
+  default = "HTTP"
+}
+
 variable "version" {
   description = "The docker image version"
   default     = "latest"
