@@ -1,6 +1,6 @@
 /**
  * The web-service is similar to the `service` module, but the
- * it provides a __public__ ALB instead.
+ * it provides a tg-listner rule instead.
  *
  * Usage:
  *
@@ -36,11 +36,11 @@ variable "version" {
 }
 
 variable "subnet_ids" {
-  description = "Comma separated list of subnet IDs that will be passed to the ALB module"
+  description = "Comma separated list of subnet IDs that will be passed to the tg-listner module"
 }
 
 variable "security_groups" {
-  description = "Comma separated list of security group IDs that will be passed to the ALB module"
+  description = "Comma separated list of security group IDs that will be passed to the tg-listner module"
 }
 
 variable "port" {
@@ -52,7 +52,7 @@ variable "cluster" {
 }
 
 variable "log_bucket" {
-  description = "The S3 bucket ID to use for the ALB"
+  description = "The S3 bucket ID to use for the tg-listner"
 }
 
 variable "ssl_certificate_id" {
@@ -64,12 +64,12 @@ variable "iam_role" {
 }
 
 variable "external_dns_name" {
-  description = "The subdomain under which the ALB is exposed externally, defaults to the task name"
+  description = "The subdomain under which the tg-listner is exposed externally, defaults to the task name"
   default     = ""
 }
 
 variable "internal_dns_name" {
-  description = "The subdomain under which the ALB is exposed internally, defaults to the task name"
+  description = "The subdomain under which the tg-listner is exposed internally, defaults to the task name"
   default     = ""
 }
 
@@ -146,10 +146,10 @@ resource "aws_ecs_service" "main" {
   iam_role                           = "${var.iam_role}"
   deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
   deployment_maximum_percent         = "${var.deployment_maximum_percent}"
-  depends_on                         = ["module.alb"]
+  depends_on                         = ["module.tg-listner"]
 
   load_balancer {
-    target_group_arn = "${module.alb.target_group}"
+    target_group_arn = "${module.tg-listner.target_group}"
     container_name   = "${module.task.name}"
     container_port   = "${var.container_port}"
   }
@@ -180,54 +180,38 @@ module "task" {
 EOF
 }
 
-module "alb" {
-  source = "../alb"
+module "tg-listner" {
+  source = "../tg-listner"
 
-  name               = "${module.task.name}"
-  port               = "${var.port}"
-  environment        = "${var.environment}"
-  subnet_ids         = "${var.subnet_ids}"
-  external_dns_name  = "${coalesce(var.external_dns_name, module.task.name)}"
-  internal_dns_name  = "${coalesce(var.internal_dns_name, module.task.name)}"
-  healthcheck        = "${var.healthcheck}"
-  external_zone_id   = "${var.external_zone_id}"
-  internal_zone_id   = "${var.internal_zone_id}"
-  security_groups    = "${var.security_groups}"
-  log_bucket         = "${var.log_bucket}"
-  ssl_certificate_id = "${var.ssl_certificate_id}"
-  vpc_id             = "${var.vpc_id}"
+  name                             = "${module.task.name}"
+  environment                      = "${var.environment}"
+  port                             = "${var.port}"
+  protocol                         = "${var.protocol}"
+  vpc_id                           = "${var.vpc_id}"
+  health_check_protocol            = "${var.health_check_protocol}"
+  health_check_path                = "${var.health_check_path}"
+  health_check_port                = "${var.health_check_port}"
+  health_check_healthy_threshold   = "${var.health_check_healthy_threshold}"
+  health_check_unhealthy_threshold = "${var.health_check_unhealthy_threshold}"
+  health_check_timeout             = "${var.health_check_timeout}"
+  health_check_interval            = "${var.health_check_interval}"
+  health_check_matcher             = "${var.health_check_matcher}"
+  priority                         = "${var.priority}"
+  condition_field                  = "${var.condition_field}"
+  condition_values                 = "${var.condition_values}"
+  tags                             = "${var.tags}"
 }
 
 /**
  * Outputs.
  */
 
-// The name of the ALB
+// The name of the tg-listner
 output "name" {
-  value = "${module.alb.name}"
+  value = "${module.tg-listner.name}"
 }
 
-// The DNS name of the ALB
-output "dns" {
-  value = "${module.alb.dns}"
-}
-
-// The id of the ALB
-output "alb" {
-  value = "${module.alb.id}"
-}
-
-// The zone id of the ALB
-output "zone_id" {
-  value = "${module.alb.zone_id}"
-}
-
-// FQDN built using the zone domain and name (external)
-output "external_fqdn" {
-  value = "${module.alb.external_fqdn}"
-}
-
-// FQDN built using the zone domain and name (internal)
-output "internal_fqdn" {
-  value = "${module.alb.internal_fqdn}"
+// The arn of the tg-listner
+output "arn" {
+  value = "${module.tg-listner.arn}"
 }
