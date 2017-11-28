@@ -55,30 +55,8 @@ variable "log_bucket" {
   description = "The S3 bucket ID to use for the tg-listner"
 }
 
-variable "ssl_certificate_id" {
-  description = "SSL Certificate ID to use"
-}
-
 variable "iam_role" {
   description = "IAM Role ARN to use"
-}
-
-variable "external_dns_name" {
-  description = "The subdomain under which the tg-listner is exposed externally, defaults to the task name"
-  default     = ""
-}
-
-variable "internal_dns_name" {
-  description = "The subdomain under which the tg-listner is exposed internally, defaults to the task name"
-  default     = ""
-}
-
-variable "external_zone_id" {
-  description = "The zone ID to create the record in"
-}
-
-variable "internal_zone_id" {
-  description = "The zone ID to create the record in"
 }
 
 /**
