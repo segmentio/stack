@@ -117,6 +117,43 @@ variable "vpc_id" {
   description = "The id of the VPC."
 }
 
+variable "health_check_protocol" {
+  description = "The protocol that the load balancer uses when performing health checks on the targets. Accepts HTTP, HTTPS "
+  type = "string"
+  default = "HTTP"
+}
+variable "health_check_path" {
+  description = "The ping path destination where Elastic Load Balancing sends health check requests"
+  type = "string"
+  default = "/api/Heartbeats"
+}
+variable "health_check_port" {
+  description = "The port to use to connect with the target. Valid values are either ports 1-65536, or traffic-port"
+  type = "string"
+  default = "traffic-port"
+}
+variable "health_check_healthy_threshold" {
+  description = "The number of consecutive successful health checks that are required before an unhealthy target is considered healthy"
+  default = 2
+}
+variable "health_check_unhealthy_threshold" {
+  description = " The number of consecutive failed health checks that are required before a target is considered unhealthy"
+  default = 2
+}
+variable "health_check_timeout" {
+  description = "The number of seconds to wait for a response before considering that a health check has failed"
+  default = 5
+}
+variable "health_check_interval" {
+  description = "The approximate number of seconds between health checks for an individual target"
+  default = 30
+}
+variable "health_check_matcher" {
+  description = "The HTTP codes that a healthy target uses when responding to a health check. HTTP codes must be in Matcher data type"
+  type = "string"
+  default = "200-399"
+}
+
 /**
  * Resources.
  */
