@@ -154,6 +154,38 @@ variable "health_check_matcher" {
   default = "200-399"
 }
 
+variable "tags" {
+  description = "tags for the distribution"
+  type        = "map"
+  description = "tags, just tags"
+}
+
+//additional listener specific vars
+variable "priority" {
+  description = "The priority for the rule. A listener can't have multiple rules with the same priority"
+}
+
+variable "condition_field" {
+  description = "The name of the field. Must be one of path-pattern for path based routing or host-header for host based routing. Accepts path-pattern, host-header"
+  type = "string"
+  default = "host-header"
+}
+
+variable "condition_values" {
+  description = "This should include the service name and the environment, there must be no trailing period (.); omit the root domain. For example: community.dev"
+  type = "string"
+}
+
+variable "listener_arn_80" {
+  description = "arn of an aws_alb_listener"
+  type = "string"
+}
+
+variable "listener_arn_443" {
+  description = "arn of an aws_alb_listener"
+  type = "string"
+}
+
 /**
  * Resources.
  */
@@ -169,7 +201,7 @@ resource "aws_ecs_service" "main" {
   depends_on                         = ["module.tg-listner"]
 
   load_balancer {
-    target_group_arn = "${module.tg-listner.target_group}"
+    target_group_arn = "${module.tg-listner.arn}"
     container_name   = "${module.task.name}"
     container_port   = "${var.container_port}"
   }
@@ -220,6 +252,8 @@ module "tg-listner" {
   condition_field                  = "${var.condition_field}"
   condition_values                 = "${var.condition_values}"
   tags                             = "${var.tags}"
+  listener_arn_80                  = "${var.listener_arn_80}"
+  listener_arn_443                 = "${var.listener_arn_443}"
 }
 
 /**

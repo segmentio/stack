@@ -83,6 +83,16 @@ variable "condition_values" {
   type = "string"
 }
 
+variable "listener_arn_80" {
+  description = "arn of an aws_alb_listener"
+  type = "string"
+}
+
+variable "listener_arn_443" {
+  description = "arn of an aws_alb_listener"
+  type = "string"
+}
+
 /**
  * Resources.
  */
