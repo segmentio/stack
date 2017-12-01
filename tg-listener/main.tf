@@ -1,5 +1,5 @@
 /**
- * The tg-listner module creates an target group, and 2 listener rules
+ * The tg-listener module creates an target group, and 2 listener rules
  * It is used by the service-tg module.
  */
 

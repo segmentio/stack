@@ -1,6 +1,6 @@
 /**
  * The web-service is similar to the `service` module, but the
- * it provides a tg-listner rule instead.
+ * it provides a tg-listener rule instead.
  *
  * Usage:
  *
@@ -62,7 +62,7 @@ variable "priority" {
 }
 
 variable "condition_values" {
-  description = "Listner rule condition. This should include the service name and the environment, there must be no trailing period (.); omit the root domain. For example: community.dev"
+  description = "listener rule condition. This should include the service name and the environment, there must be no trailing period (.); omit the root domain. For example: community.dev"
   type = "string"
 }
 
@@ -182,10 +182,10 @@ resource "aws_ecs_service" "main" {
   iam_role                           = "${var.iam_role}"
   deployment_minimum_healthy_percent = "${var.deployment_minimum_healthy_percent}"
   deployment_maximum_percent         = "${var.deployment_maximum_percent}"
-  depends_on                         = ["module.tg-listner"]
+  depends_on                         = ["module.tg-listener"]
 
   load_balancer {
-    target_group_arn = "${module.tg-listner.arn}"
+    target_group_arn = "${module.tg-listener.arn}"
     container_name   = "${module.task.name}"
     container_port   = "${var.container_port}"
   }
@@ -216,8 +216,8 @@ module "task" {
 EOF
 }
 
-module "tg-listner" {
-  source = "../tg-listner"
+module "tg-listener" {
+  source = "../tg-listener"
 
   name                             = "${module.task.name}"
   port                             = "${var.port}"
@@ -243,12 +243,12 @@ module "tg-listner" {
  * Outputs.
  */
 
-// The name of the tg-listner
+// The name of the tg-listener
 output "name" {
-  value = "${module.tg-listner.name}"
+  value = "${module.tg-listener.name}"
 }
 
-// The arn of the tg-listner
+// The arn of the tg-listener
 output "arn" {
-  value = "${module.tg-listner.arn}"
+  value = "${module.tg-listener.arn}"
 }
