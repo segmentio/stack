@@ -126,6 +126,11 @@ variable "extra_cloud_config_content" {
   default     = ""
 }
 
+variable "cost_center" {
+  description = "Cost Center"
+  default = ""
+}
+
 resource "aws_security_group" "cluster" {
   name        = "${var.name}-ecs-cluster"
   vpc_id      = "${var.vpc_id}"
@@ -148,6 +153,7 @@ resource "aws_security_group" "cluster" {
   tags {
     Name        = "ECS cluster (${var.name})"
     Environment = "${var.environment}"
+    CostCenter = "${var.cost_center}"
   }
 
   lifecycle {
@@ -246,6 +252,12 @@ resource "aws_autoscaling_group" "main" {
   tag {
     key                 = "Environment"
     value               = "${var.environment}"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "CostCenter"
+    value               = "${var.cost_center}"
     propagate_at_launch = true
   }
 
