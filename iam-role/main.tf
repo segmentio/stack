@@ -97,7 +97,7 @@ EOF
 resource "aws_iam_instance_profile" "default_ecs" {
   name  = "ecs-instance-profile-${var.name}-${var.environment}"
   path  = "/"
-  roles = "${aws_iam_role.default_ecs_role.name}"
+  role = "${aws_iam_role.default_ecs_role.name}"
 }
 
 output "arn" {
