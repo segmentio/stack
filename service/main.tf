@@ -111,10 +111,6 @@ variable "zone_id" {
   description = "The zone ID to create the record in"
 }
 
-variable "task_role_arn" {
-  description = "The ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
-}
-
 /**
  * Resources.
  */
@@ -147,7 +143,6 @@ module "task" {
   env_vars      = "${var.env_vars}"
   memory        = "${var.memory}"
   cpu           = "${var.cpu}"
-  task_role_arn = "${var.task_role_arn}"
 
   ports = <<EOF
   [

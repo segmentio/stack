@@ -62,10 +62,6 @@ variable "memory" {
   default     = 512
 }
 
-variable "task_role_arn" {
-  description = "The ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services."
-}
-
 /**
  * Resources.
  */
@@ -74,8 +70,6 @@ variable "task_role_arn" {
 
 resource "aws_ecs_task_definition" "main" {
   family = "${var.name}"
-
-  task_role_arn = "${var.task_role_arn}"
 
   lifecycle {
     ignore_changes        = ["image"]
