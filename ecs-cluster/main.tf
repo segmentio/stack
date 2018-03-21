@@ -346,7 +346,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_low" {
   namespace           = "AWS/ECS"
   period              = "300"
   statistic           = "Maximum"
-  threshold           = "10"
+  threshold           = "80"
 
   dimensions {
     ClusterName = "${aws_ecs_cluster.main.name}"
@@ -372,7 +372,7 @@ resource "aws_cloudwatch_metric_alarm" "memory_low" {
   namespace           = "AWS/ECS"
   period              = "300"
   statistic           = "Maximum"
-  threshold           = "10"
+  threshold           = "80"
 
   dimensions {
     ClusterName = "${aws_ecs_cluster.main.name}"
