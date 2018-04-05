@@ -130,6 +130,7 @@ resource "aws_ecs_service" "main" {
   task_definition = "${module.task.arn}"
   desired_count   = "${var.desired_count}"
   iam_role        = "${var.iam_role}"
+  launch_type = ""
 
   load_balancer {
     elb_name       = "${module.elb.id}"
@@ -139,6 +140,7 @@ resource "aws_ecs_service" "main" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes        = ["launch_type"]
   }
 }
 
