@@ -70,9 +70,10 @@ variable "memory" {
 
 resource "aws_ecs_task_definition" "main" {
   family = "${var.name}"
+  launch_type = ""
 
   lifecycle {
-    ignore_changes        = ["image"]
+    ignore_changes        = ["image", "launch_type"]
     create_before_destroy = true
   }
 
