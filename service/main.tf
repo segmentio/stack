@@ -121,7 +121,6 @@ resource "aws_ecs_service" "main" {
   task_definition = "${module.task.arn}"
   desired_count   = "${var.desired_count}"
   iam_role        = "${var.iam_role}"
-  launch_type     = "EC2"
 
   load_balancer {
     elb_name       = "${module.elb.id}"
