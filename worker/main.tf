@@ -77,11 +77,9 @@ resource "aws_ecs_service" "main" {
   cluster         = "${var.cluster}"
   task_definition = "${module.task.arn}"
   desired_count   = "${var.desired_count}"
-  launch_type     = ""
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes        = ["launch_type"]
   }
 }
 
