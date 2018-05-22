@@ -263,6 +263,11 @@ output "domain_name" {
   value = "${module.dns.name}"
 }
 
+// The IP addresses of the nameservers
+output "internal_dns_servers" {
+  value = "${module.dns.name_servers}"
+}
+
 // The environment of the stack, e.g "prod".
 output "environment" {
   value = "${var.environment}"
