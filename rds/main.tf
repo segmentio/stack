@@ -81,6 +81,12 @@ variable "allocated_storage" {
   default     = 10
 }
 
+variable "replicate_source_db" {
+  description = "(Optional) RDS database identifier to replicate from"
+  type        = "string"
+  default     = ""
+}
+
 variable "publicly_accessible" {
   description = "If true, the RDS instance will be open to the internet"
   default     = false
@@ -162,6 +168,7 @@ resource "aws_db_instance" "main" {
   monitoring_interval       = "${var.monitoring_interval}"
   monitoring_role_arn       = "${var.monitoring_role_arn}"
   apply_immediately         = "${var.apply_immediately}"
+  skip_final_snapshot       = "${var.replicate_source_db == ""}"
   final_snapshot_identifier = "${var.name}-finalsnapshot"
 
   # Hardware
@@ -170,9 +177,11 @@ resource "aws_db_instance" "main" {
   allocated_storage = "${var.allocated_storage}"
 
   # Network / security
-  db_subnet_group_name   = "${aws_db_subnet_group.main.id}"
+  db_subnet_group_name   = "${var.replicate_source_db != "" ? "" : format("%s", aws_db_subnet_group.main.id)}"
   vpc_security_group_ids = ["${aws_security_group.main.id}"]
   publicly_accessible    = "${var.publicly_accessible}"
+
+  replicate_source_db = "${var.replicate_source_db}"
 }
 
 output "addr" {
