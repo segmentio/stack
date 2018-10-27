@@ -66,6 +66,11 @@ variable "apply_immediately" {
   default     = true
 }
 
+variable "allow_major_version_upgrade" {
+  description = "If true, major version upgrades are allowed"
+  default     = false
+}
+
 variable "instance_class" {
   description = "Underlying instance type"
   default     = "db.t2.micro"
@@ -148,12 +153,13 @@ resource "aws_db_instance" "main" {
   identifier = "${var.name}"
 
   # Database
-  engine         = "${var.engine}"
-  engine_version = "${var.engine_version}"
-  username       = "${coalesce(var.username, var.name)}"
-  password       = "${var.password}"
-  multi_az       = "${var.multi_az}"
-  name           = "${coalesce(var.database, var.name)}"
+  engine                      = "${var.engine}"
+  engine_version              = "${var.engine_version}"
+  allow_major_version_upgrade = "${var.allow_major_version_upgrade}"
+  username                    = "${coalesce(var.username, var.name)}"
+  password                    = "${var.password}"
+  multi_az                    = "${var.multi_az}"
+  name                        = "${coalesce(var.database, var.name)}"
 
   # Backups / maintenance
   backup_retention_period   = "${var.backup_retention_period}"
