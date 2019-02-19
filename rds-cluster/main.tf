@@ -71,6 +71,16 @@ variable "dns_name" {
   default     = ""
 }
 
+variable "engine" {
+  description = "Database engine: mysql, postgres, etc."
+  default     = "aurora-postgresql"
+}
+
+variable "engine_version" {
+  description = "Database version"
+  default     = "9.6.1"
+}
+
 variable "port" {
   description = "The port at which the database listens for incoming connections"
   default     = 3306
@@ -125,6 +135,8 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
 
 resource "aws_rds_cluster" "main" {
   cluster_identifier        = "${var.name}"
+  engine                    = "${var.engine}"
+  engine_version            = "${var.engine_version}"
   availability_zones        = ["${var.availability_zones}"]
   database_name             = "${var.database_name}"
   master_username           = "${var.master_username}"
