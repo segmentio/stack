@@ -62,6 +62,11 @@ variable "memory" {
   default     = 512
 }
 
+variable "region" {
+  description = "The region for this task"
+  default     = "eu-west-1"
+}
+
 /**
  * Resources.
  */
@@ -90,9 +95,10 @@ resource "aws_ecs_task_definition" "main" {
     "entryPoint": ${var.entry_point},
     "mountPoints": [],
     "logConfiguration": {
-      "logDriver": "journald",
+      "logDriver": "awslogs",
       "options": {
-        "tag": "${var.name}"
+        "awslogs-group": "${var.name}",
+        "awslogs-region": "${var.region}"
       }
     }
   }
