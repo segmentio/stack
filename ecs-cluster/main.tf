@@ -282,7 +282,7 @@ resource "aws_autoscaling_policy" "scale_down" {
   name                   = "${var.name}-scaledown"
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
-  cooldown               = 300
+  cooldown               = 900
   autoscaling_group_name = "${aws_autoscaling_group.main.name}"
 
   lifecycle {
