@@ -266,6 +266,20 @@ resource "aws_autoscaling_group" "main" {
   }
 }
 
+resource "aws_autoscaling_notification" "autoscaling_notifications" {
+  group_names = [
+    "${aws_autoscaling_group.main.name}"
+  ]
+
+  notifications = [
+    "autoscaling:EC2_INSTANCE_LAUNCH",
+    "autoscaling:EC2_INSTANCE_TERMINATE",
+    "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+  ]
+
+  topic_arn = "arn:aws:sns:us-east-1:257111400340:analytics-pipeline-${var.environment}-slack"
+}
+
 resource "aws_autoscaling_policy" "scale_up" {
   name                   = "${var.name}-scaleup"
   scaling_adjustment     = 1
