@@ -229,7 +229,6 @@ Usage:
        security_groups      = "1,2"
        iam_instance_profile = "id"
        region               = "us-west-2"
-       availability_zones   = ["a", "b"]
        instance_type        = "t2.small"
      }
 
@@ -248,7 +247,6 @@ Usage:
 | security_groups | Comma separated list of security groups | - | yes |
 | iam_instance_profile | Instance profile ARN to use in the launch configuration | - | yes |
 | region | AWS Region | - | yes |
-| availability_zones | List of AZs | - | yes |
 | instance_type | The instance type to use, e.g t2.small | - | yes |
 | instance_ebs_optimized | When set to true the instance will be launched with EBS optimized turned on | `true` | no |
 | min_size | Minimum instance count | `3` | no |
