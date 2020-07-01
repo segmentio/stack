@@ -92,7 +92,7 @@ Usage:
 # bastion
 
 The bastion host acts as the "jump point" for the rest of the infrastructure.
-Since most of our instances aren't exposed to the external internet, the bastion acts as the gatekeeper for any direct SSH access.
+Since most of our instances are not exposed to the external internet, the bastion acts as the gatekeeper for any direct SSH access.
 The bastion is provisioned using the key name that you pass to the stack (and hopefully have stored somewhere).
 If you ever need to access an instance directly, you can do it by "jumping through" the bastion.
 
@@ -134,7 +134,7 @@ Usage:
 # defaults
 
 This module is used to set configuration defaults for the AWS infrastructure.
-It doesn't provide much value when used on its own because terraform makes it
+It does not provide much value when used on its own because terraform makes it
 hard to do dynamic generations of things like subnets, for now it's used as
 a helper module for the stack.
 
@@ -252,7 +252,7 @@ Usage:
 | instance_type | The instance type to use, e.g t2.small | - | yes |
 | instance_ebs_optimized | When set to true the instance will be launched with EBS optimized turned on | `true` | no |
 | min_size | Minimum instance count | `3` | no |
-| max_size | Maxmimum instance count | `100` | no |
+| max_size | Maximum instance count | `100` | no |
 | desired_capacity | Desired instance count | `3` | no |
 | associate_public_ip_address | Should created instances be publicly accessible (if the SG allows) | `false` | no |
 | root_volume_size | Root volume size in GB | `25` | no |

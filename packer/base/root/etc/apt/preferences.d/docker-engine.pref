@@ -1,0 +1,3 @@
+Package: *
+Pin: release o=Docker
+Pin-Priority: 900

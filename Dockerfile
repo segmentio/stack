@@ -11,15 +11,15 @@ RUN apt-get update \
   && apt-get clean
 
 COPY tools /usr/local/bin
-RUN curl -sL "https://releases.hashicorp.com/terraform/0.7.2/terraform_0.7.2_linux_amd64.zip"> terraform.zip \
+RUN curl -sL "https://releases.hashicorp.com/terraform/0.9.11/terraform_0.9.11_linux_amd64.zip"> terraform.zip \
   && unzip terraform.zip \
   && mv terraform /usr/local/bin
 
-RUN curl -sL "https://releases.hashicorp.com/packer/0.10.1/packer_0.10.1_linux_amd64.zip" > packer.zip \
+RUN curl -sL "https://releases.hashicorp.com/packer/1.0.3/packer_1.0.3_linux_amd64.zip" > packer.zip \
   && unzip packer.zip \
   && mv packer /usr/local/bin
 
-RUN curl -sL -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.1.3/dumb-init_1.1.3_amd64 && chmod +x /usr/local/bin/dumb-init
+RUN curl -sL -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 && chmod +x /usr/local/bin/dumb-init
 
 ENTRYPOINT ["/usr/local/bin/dumb-init"]
 
