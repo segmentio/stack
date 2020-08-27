@@ -2,6 +2,10 @@ variable "name" {
   description = "RDS instance name"
 }
 
+variable "environment" {
+  description = "Environment tag, e.g prod, if missing defaults to name"
+}
+
 variable "engine" {
   description = "Database engine: mysql, postgres, etc."
   default     = "postgres"
@@ -112,6 +116,10 @@ variable "subnet_ids" {
   type        = "list"
 }
 
+locals {
+  environment = "${coalesce(var.environment, var.name)}"
+}
+
 resource "aws_security_group" "main" {
   name        = "${var.name}-rds"
   description = "Allows traffic to RDS from other security groups"
@@ -139,7 +147,8 @@ resource "aws_security_group" "main" {
   }
 
   tags {
-    Name = "RDS (${var.name})"
+    Name = "RDS ${var.name}"
+    Environment = "${local.environment}"
   }
 }
 
@@ -147,6 +156,11 @@ resource "aws_db_subnet_group" "main" {
   name        = "${var.name}"
   description = "RDS subnet group"
   subnet_ids  = ["${var.subnet_ids}"]
+
+  tags {
+    Name = "RDS Subnet ${var.name}"
+    Environment = "${local.environment}"
+  }
 }
 
 resource "aws_db_instance" "main" {
@@ -179,6 +193,11 @@ resource "aws_db_instance" "main" {
   db_subnet_group_name   = "${aws_db_subnet_group.main.id}"
   vpc_security_group_ids = ["${aws_security_group.main.id}"]
   publicly_accessible    = "${var.publicly_accessible}"
+
+  tags {
+    Name = "RDS Instance ${var.name}"
+    Environment = "${local.environment}"
+  }
 }
 
 output "addr" {
