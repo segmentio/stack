@@ -48,56 +48,65 @@ variable "internal_zone_id" {
   description = "The zone ID to create the record in"
 }
 
-variable "ssl_certificate_id" {
+variable "ssl_certificate_id" {}
+
+variable "vpc_id" {
+  description = "The id of the VPC."
 }
 
 /**
  * Resources.
  */
 
-resource "aws_elb" "main" {
-  name = "${var.name}"
+# Create a new load balancer
+resource "aws_alb" "main" {
+  name            = "${var.name}"
+  internal        = false
+  subnets         = ["${split(",", var.subnet_ids)}"]
+  security_groups = ["${split(",",var.security_groups)}"]
 
-  internal                  = false
-  cross_zone_load_balancing = true
-  subnets                   = ["${split(",", var.subnet_ids)}"]
-  security_groups           = ["${split(",",var.security_groups)}"]
-
-  idle_timeout                = 30
-  connection_draining         = true
-  connection_draining_timeout = 15
-
-  listener {
-    lb_port           = 80
-    lb_protocol       = "http"
-    instance_port     = "${var.port}"
-    instance_protocol = "http"
+  access_logs {
+    bucket = "${var.log_bucket}"
   }
+}
 
-  listener {
-    lb_port            = 443
-    lb_protocol        = "https"
-    instance_port      = "${var.port}"
-    instance_protocol  = "http"
-    ssl_certificate_id = "${var.ssl_certificate_id}"
-  }
+resource "aws_alb_target_group" "main" {
+  name     = "alb-target-${var.name}"
+  port     = "${var.port}"
+  protocol = "HTTP"
+  vpc_id   = "${var.vpc_id}"
 
   health_check {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 5
-    target              = "HTTP:${var.port}${var.healthcheck}"
+    protocol            = "HTTP"
+    path                = "${var.healthcheck}"
     interval            = 30
   }
+}
 
-  access_logs {
-    bucket = "${var.log_bucket}"
+resource "aws_alb_listener" "service_https" {
+  load_balancer_arn = "${aws_alb.main.arn}"
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2015-05"
+  certificate_arn   = "${var.ssl_certificate_id}"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.main.arn}"
+    type             = "forward"
   }
+}
 
-  tags {
-    Name        = "${var.name}-balancer"
-    Service     = "${var.name}"
-    Environment = "${var.environment}"
+resource "aws_alb_listener" "service_http" {
+  load_balancer_arn = "${aws_alb.main.arn}"
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.main.arn}"
+    type             = "forward"
   }
 }
 
@@ -107,8 +116,8 @@ resource "aws_route53_record" "external" {
   type    = "A"
 
   alias {
-    zone_id                = "${aws_elb.main.zone_id}"
-    name                   = "${aws_elb.main.dns_name}"
+    zone_id                = "${aws_alb.main.zone_id}"
+    name                   = "${aws_alb.main.dns_name}"
     evaluate_target_health = false
   }
 }
@@ -119,8 +128,8 @@ resource "aws_route53_record" "internal" {
   type    = "A"
 
   alias {
-    zone_id                = "${aws_elb.main.zone_id}"
-    name                   = "${aws_elb.main.dns_name}"
+    zone_id                = "${aws_alb.main.zone_id}"
+    name                   = "${aws_alb.main.dns_name}"
     evaluate_target_health = false
   }
 }
@@ -131,17 +140,17 @@ resource "aws_route53_record" "internal" {
 
 // The ELB name.
 output "name" {
-  value = "${aws_elb.main.name}"
+  value = "${aws_alb.main.name}"
 }
 
 // The ELB ID.
 output "id" {
-  value = "${aws_elb.main.id}"
+  value = "${aws_alb.main.id}"
 }
 
 // The ELB dns_name.
 output "dns" {
-  value = "${aws_elb.main.dns_name}"
+  value = "${aws_alb.main.dns_name}"
 }
 
 // FQDN built using the zone domain and name (external)
@@ -156,5 +165,9 @@ output "internal_fqdn" {
 
 // The zone id of the ELB
 output "zone_id" {
-  value = "${aws_elb.main.zone_id}"
+  value = "${aws_alb.main.zone_id}"
+}
+
+output "target_group" {
+  value = "${aws_alb_target_group.main.arn}"
 }
