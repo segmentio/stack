@@ -329,3 +329,13 @@ output "internal_route_tables" {
 output "external_route_tables" {
   value = "${module.vpc.external_rtb_id}"
 }
+
+// The external ssh security group ID.
+output "external_ssh" {
+  value = "${module.security_groups.external_ssh}"
+}
+
+// The internal ssh security group ID.
+output "internal_ssh" {
+  value = "${module.security_groups.internal_ssh}"
+}
