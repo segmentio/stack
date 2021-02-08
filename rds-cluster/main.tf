@@ -37,6 +37,10 @@ variable "master_username" {
   description = "The master user username"
 }
 
+variable "product_area" {
+  description = "The product area for this cluster"
+}
+
 variable "master_password" {
   description = "The master user password"
 }
@@ -121,6 +125,10 @@ resource "aws_rds_cluster_instance" "cluster_instances" {
 
   # need a deterministic identifier or terraform will force a new resource every apply
   identifier = "${aws_rds_cluster.main.id}-${count.index}"
+
+  tags {
+    product_area = "${var.product_area}"
+  }
 }
 
 resource "aws_rds_cluster" "main" {
