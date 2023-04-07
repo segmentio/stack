@@ -4,7 +4,7 @@
 #    -v /tmp:/tmp -v ~/.aws:/root/.aws \
 #    -e AWS_DEFAULT_REGION=us-east-1 aws-stack make amis
 
-FROM python:3.5-slim
+FROM python:3.10.10-slim
 RUN pip3 install mypy-lang==0.4 flake8==2.5.4 pyyaml boto3
 RUN apt-get update \
   && apt-get install -y curl unzip make \
